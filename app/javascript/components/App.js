@@ -1,7 +1,8 @@
 import React from 'react'
 import { Switch, Route } from 'react-router-dom'
-import Todolist from './Todolist/Todolist'
-import Todolists from './Todolists/Todolists'
+import Todolist from './Todolist'
+import Todolists from './Todolists'
+
 
 const App = () => {
     return (

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
-import Todolist from '../Todolist/Todolist'
+import Todolist from './Todolist'
+import { Row } from 'react-bootstrap'
 
 const Todolists = () => {
     const [todolists, setTodolists] = useState([])
@@ -14,21 +15,19 @@ const Todolists = () => {
     }, [todolists.length])
 
 
-    const list = todolists.map( item => {
-        return (<Todolist key={item.attributes.name} attributes={item.attributes}/>)
+    const lists = todolists.map( item => {
+        return (<Todolist key={item.id} id={item.id} attributes={item.attributes}/>)
     })
 
     return (
-        <div className="home">
+        <div className="App">
             <div className="header">
                 <h1>Todolister</h1>
                 <div className="subheader">To do or not to do?</div>
+            <br/><br/>
             </div>
-            <div className="lists">
-                {list}
-            </div>
+            <Row>{lists}</Row>
         </div>
-
     )
 }
 

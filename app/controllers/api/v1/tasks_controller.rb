@@ -5,7 +5,7 @@ module Api
             protect_from_forgery with: :null_session
             
             def create
-                task = Task.new(task_params)
+                task = todolist.tasks.new(task_params)
 
                 if task.save
                     render json: TaskSerializer.new(task).to_json
@@ -32,6 +32,12 @@ module Api
                 else
                     render json: { error: task.errors.messages }, status: 422
                 end
+            end
+
+            private
+
+            def todolist
+                @todolist ||= Todolist.find(params[:todolist_id])
             end
 
             def task_params

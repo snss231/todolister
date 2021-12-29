@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
     <Router>
       <Route path="/" component={App}/>
     </Router>,
-    //<div>hi</div>,
     document.body.appendChild(document.createElement('div')),
   )
-})
+}) 
