@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import Task from './Task'
-import TaskForm from './TaskForm'
-import { Button, Card, Stack } from 'react-bootstrap'
+import TaskForm from './TaskForm' 
+import { Grid, Card, CardHeader, Button } from '@mui/material'
 
 const Todolist = ({ id, attributes }) => {
     const [tasks, setTasks] = useState([])
@@ -42,24 +42,22 @@ const Todolist = ({ id, attributes }) => {
     }
 
     const taskList = tasks.map(task => 
-        <Task 
-            key={task.id} 
-            name={task.attributes.name} 
-            description={task.attributes.description} 
-            id={task.id}
-            handleDelete={handleDelete}>
+            <Task 
+                name={task.attributes.name} 
+                description={task.attributes.description} 
+                id={task.id}
+                handleDelete={handleDelete}>
             </Task> 
     )
 
     return (
-        <Card style={{ width: '18rem'}}>
-            <Card.Header>{attributes.name}</Card.Header>
+        <Grid item><Card>
+            <CardHeader title={attributes.name}></CardHeader>
             <TaskForm handleSubmit={handleSubmit}></TaskForm>
-            <Stack>{taskList}</Stack>
-        </Card>
+                { taskList }
+        </Card></Grid>
     )
 }
-
 
 
 export default Todolist

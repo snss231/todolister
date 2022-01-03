@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import Todolist from './Todolist'
-import { Row } from 'react-bootstrap'
+import { Grid } from '@mui/material'
 
 const Todolists = () => {
     const [todolists, setTodolists] = useState([])
@@ -16,7 +16,9 @@ const Todolists = () => {
 
 
     const lists = todolists.map( item => {
-        return (<Todolist key={item.id} id={item.id} attributes={item.attributes}/>)
+        return (<Grid item xs={12} sm={6} md={4} lg={3} >
+            <Todolist key={item.id} id={item.id} attributes={item.attributes}/>
+            </Grid>)
     })
 
     return (
@@ -26,7 +28,7 @@ const Todolists = () => {
                 <div className="subheader">To do or not to do?</div>
             <br/><br/>
             </div>
-            <Row>{lists}</Row>
+            <Grid container spacing={2}>{lists}</Grid>
         </div>
     )
 }

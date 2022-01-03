@@ -1,7 +1,11 @@
 import React, { useState } from 'react'
+import {Button, TextField, Card, ButtonGroup, CardActions} from '@mui/material'
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 const TaskForm = ({handleSubmit}) => {
     const [task, setTask] = useState({name: '', description: ''})
+    const [active, setActive] = useState(false);
 
     const handleChange = e => {
         e.preventDefault();
@@ -10,19 +14,33 @@ const TaskForm = ({handleSubmit}) => {
         console.log('task: ', task)
     }
 
-    return (
-        <div className="wrapper">
+    const activeView = () => (
+        <Card>
             <form onSubmit ={e => {handleSubmit(e, task); setTask({name: '', description: ''})}}>
-                <div className="field">
-                    <input onChange={handleChange} type="text" name="name" value={task.name} placeholder="My new task"/>
-                </div>
-                <div className="field">
-                    <input onChange={handleChange} type="text" name="description" value={task.description} placeholder="description"/>
-                </div>
-                <button type="submit">+</button>
+                <TextField
+                    onChange={handleChange} 
+                    name="name" value={task.name} 
+                    placeholder="My new task">
+                </TextField><br/>
+                <TextField
+                    onChange={handleChange} name="description" value={task.description} 
+                    placeholder="description">
+                </TextField><br/>
+                <ButtonGroup>
+                    <Button type="submit"><SaveIcon/></Button>
+                    <Button onClick={() => {setActive(false); setTask({name: '', description: ''})}}><CancelIcon/></Button>
+                </ButtonGroup>
+
             </form>
-        </div>
+        </Card>
     )
+    
+    const inactiveView = () => ( 
+        <CardActions><Button onClick={() => setActive(true)}>add new task</Button></CardActions>
+    )
+
+    return active ? activeView() : inactiveView() 
+        
 }
 
 export default TaskForm

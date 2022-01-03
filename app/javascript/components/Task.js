@@ -1,6 +1,11 @@
 import axios from 'axios'
 import React, { useState } from 'react'
-import { Button, ButtonGroup, Card } from 'react-bootstrap'
+import styled from 'styled-components'
+import { Card, TextField, CardHeader, Button, ButtonGroup, IconButton, CardActions} from '@mui/material'
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
+import DoneIcon from '@mui/icons-material/Done';
+import EditIcon from '@mui/icons-material/Edit';
+
 
 const Task = ({ name, description, id, handleDelete }) => {
 
@@ -30,27 +35,44 @@ const Task = ({ name, description, id, handleDelete }) => {
 
     const defaultView = () => (
         <Card>
-            <Card.Title>{task.name}</Card.Title>
-            <Card.Subtitle>{task.description}</Card.Subtitle>
-            <ButtonGroup>
-                <Button onClick={() => setEditMode(true)} variant="secondary" size="sm">edit</Button>
-                <Button onClick={(e) => handleDelete(e, id)} variant="secondary" size="sm" >delete</Button>
-                <Button variant="secondary" size="sm">mark completed</Button>
-            </ButtonGroup>
+            <CardHeader 
+                title={task.name}
+                subheader={task.description}
+            />
+            <CardActions>
+                <Button onClick={() => setEditMode(true)} 
+                    color="primary" 
+                    variant="contained" 
+                    size="small"><EditIcon/></Button>
+                <Button onClick={(e) => handleDelete(e, id)} 
+                    color="error" 
+                    variant="contained" 
+                    size="small"><DeleteOutlineIcon/></Button>
+                <Button variant="contained" 
+                    size="small"
+                    color="success"><DoneIcon></DoneIcon></Button>
+            </CardActions>
         </Card>)
 
     const editView = () =>  (
-        <div className="wrapper">
+        <Card>
             <form onSubmit ={handleSubmit}>
-                <div className="field">
-                    <input onChange={handleChange} type="text" name="name" value={task.name} placeholder="My new task"/>
-                </div>
-                <div className="field">
-                    <input onChange={handleChange} type="text" name="description" value={task.description} placeholder="description"/>
-                </div>
-                <button type="submit">Save</button><button onClick={() => setEditMode(false)}>Cancel</button>
+                <TextField
+                    onChange={handleChange}
+                    name="name" 
+                    value={task.name} 
+                    placeholder="My new task">
+                </TextField><br/>
+                <TextField 
+                    onChange={handleChange} 
+                    name="description" 
+                    value={task.description} 
+                    placeholder="description">
+                </TextField>
+                <Button type="submit">Save</Button>
+                <Button onClick={() => setEditMode(false)}>Cancel</Button>
             </form>
-        </div>
+        </Card>
     )
 
 
