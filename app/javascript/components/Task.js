@@ -1,7 +1,7 @@
 import axios from 'axios'
 import React, { useState } from 'react'
 import styled from 'styled-components'
-import { Card, TextField, CardHeader, Button, ButtonGroup, IconButton, CardActions} from '@mui/material'
+import { Card, TextField, CardHeader, Button, CardActions, Box, Container, Stack, Item } from '@mui/material'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import DoneIcon from '@mui/icons-material/Done';
 import EditIcon from '@mui/icons-material/Edit';
@@ -11,6 +11,7 @@ const Task = ({ name, description, id, handleDelete }) => {
 
     const [editMode, setEditMode] = useState(false);
     const [task, setTask] = useState({ name, description })
+    const [showButtons, setShowButtons] = useState(false)
 
     const handleSubmit = e => {
         e.preventDefault();
@@ -34,11 +35,13 @@ const Task = ({ name, description, id, handleDelete }) => {
 
 
     const defaultView = () => (
-        <Card>
+        <Card onMouseEnter={() => setShowButtons(true)}
+            onMouseLeave={() => setShowButtons(false)}>
             <CardHeader 
                 title={task.name}
                 subheader={task.description}
             />
+            { showButtons &&
             <CardActions>
                 <Button onClick={() => setEditMode(true)} 
                     color="primary" 
@@ -52,26 +55,33 @@ const Task = ({ name, description, id, handleDelete }) => {
                     size="small"
                     color="success"><DoneIcon></DoneIcon></Button>
             </CardActions>
+            }  
         </Card>)
 
     const editView = () =>  (
         <Card>
-            <form onSubmit ={handleSubmit}>
-                <TextField
-                    onChange={handleChange}
-                    name="name" 
-                    value={task.name} 
-                    placeholder="My new task">
-                </TextField><br/>
-                <TextField 
-                    onChange={handleChange} 
-                    name="description" 
-                    value={task.description} 
-                    placeholder="description">
-                </TextField>
-                <Button type="submit">Save</Button>
-                <Button onClick={() => setEditMode(false)}>Cancel</Button>
-            </form>
+            <Box component="form" onSubmit ={handleSubmit} margin='normal'>
+                <Stack spacing={2}>
+                        <TextField sx={{mt: 1}}
+                        onChange={handleChange}
+                        label="name"
+                        name="name" 
+                        value={task.name} 
+                        placeholder="My new task"/> 
+                        <TextField
+                        label="description" 
+                        onChange={handleChange} 
+                        name="description" 
+                        value={task.description} 
+                        placeholder="description"
+                        multiline={true}/>
+                </Stack>
+                <CardActions>
+                    <Button type="submit">Save</Button>
+                    <Button onClick={() => setEditMode(false)}>Cancel</Button>
+                </CardActions>
+
+            </Box>
         </Card>
     )
 
