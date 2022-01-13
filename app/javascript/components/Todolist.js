@@ -42,18 +42,20 @@ const Todolist = ({ id, attributes }) => {
     }
 
 
-    const taskList = tasks.map(task => 
-            <Task
-                key={task.id}
-                name={task.attributes.name} 
-                description={task.attributes.description} 
-                id={task.id}
+    const taskList = tasks.map(({id, attributes}) => {
+            return (<Task
+                key={id}
+                name={attributes.name} 
+                description={attributes.description} 
+                id={id}
+                due_date={attributes.due_date === null ? null : new Date(attributes.due_date)}
                 handleDelete={handleDelete}>
-            </Task>
+            </Task>)
+        }
     )
 
     return (
-        <Card>
+        <Card variant='outlined'>
             <CardHeader title={attributes.name}></CardHeader>
             <TaskForm handleSubmit={handleSubmit}></TaskForm>
             <Stack>

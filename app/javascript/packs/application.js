@@ -9,6 +9,11 @@ import * as ActiveStorage from "@rails/activestorage"
 import "channels"
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap/dist/js/bootstrap'
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
+
 
 Rails.start()
 Turbolinks.start()

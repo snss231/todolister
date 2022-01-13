@@ -1,16 +1,17 @@
 import axios from 'axios'
 import React, { useState } from 'react'
-import styled from 'styled-components'
-import { Card, TextField, CardHeader, Button, CardActions, Box, Container, Stack, Item } from '@mui/material'
+import DatePicker from 'react-datepicker'
+import "react-datepicker/dist/react-datepicker.css";
+import { Card, TextField, CardHeader, Button, CardActions, Box, CardContent, Stack, Typography } from '@mui/material'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import DoneIcon from '@mui/icons-material/Done';
 import EditIcon from '@mui/icons-material/Edit';
 
 
-const Task = ({ name, description, id, handleDelete }) => {
+const Task = ({ name, description, id, handleDelete, due_date }) => {
 
     const [editMode, setEditMode] = useState(false);
-    const [task, setTask] = useState({ name, description })
+    const [task, setTask] = useState({ name, description, due_date }) 
     const [showButtons, setShowButtons] = useState(false)
 
     const handleSubmit = e => {
@@ -18,7 +19,6 @@ const Task = ({ name, description, id, handleDelete }) => {
 
         const csrfToken = document.querySelector('[name=csrf-token]').content
         axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken
-        console.log(task)
 
         axios.patch(`/api/v1/tasks/${id}`, {task, id})
         .then(resp => {
@@ -32,6 +32,10 @@ const Task = ({ name, description, id, handleDelete }) => {
         //console.log('task: ', task)
     }
 
+    const handleDate = date => {
+        console.log(date)
+        setTask(Object.assign({}, task, {due_date: date}))
+    }
 
 
     const defaultView = () => (
@@ -41,6 +45,11 @@ const Task = ({ name, description, id, handleDelete }) => {
                 title={task.name}
                 subheader={task.description}
             />
+            <CardContent>
+                <Typography variant="body2">
+                    {task.due_date !== null && 'due: ' + task.due_date.toDateString()}
+                </Typography>
+            </CardContent>
             { showButtons &&
             <CardActions>
                 <Button onClick={() => setEditMode(true)} 
@@ -62,19 +71,22 @@ const Task = ({ name, description, id, handleDelete }) => {
         <Card>
             <Box component="form" onSubmit ={handleSubmit} margin='normal'>
                 <Stack spacing={2}>
-                        <TextField sx={{mt: 1}}
+                    <TextField sx={{mt: 1}}
                         onChange={handleChange}
                         label="name"
                         name="name" 
                         value={task.name} 
                         placeholder="My new task"/> 
-                        <TextField
+                    <TextField
                         label="description" 
                         onChange={handleChange} 
                         name="description" 
                         value={task.description} 
                         placeholder="description"
                         multiline={true}/>
+                    <DatePicker 
+                        selected={task.due_date}
+                        onChange={handleDate} />
                 </Stack>
                 <CardActions>
                     <Button type="submit">Save</Button>

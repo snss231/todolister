@@ -10,6 +10,7 @@ import SearchIcon from "@mui/icons-material/Search"
 
 const SearchBar = ({tasks, lists}) => {
     const [searchResults, setSearchResults] = useState({})
+    const [focus, setFocus] = useState(false)
 
     const handleFilter = e => {
         const filter = e.target.value
@@ -24,9 +25,11 @@ const SearchBar = ({tasks, lists}) => {
     }
 
     return (
-        <Box sx={{display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center', margin:'25px'}}>
+        <Box sx={{display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center', margin:'25px', position:'relative'}}>
             <TextField type="text" id="outlined-basic" variant="outlined" label='Search' 
                 onChange={handleFilter} 
+                onFocus={()=>setFocus(true)}
+                onBlur={()=>setFocus(false)}
                 InputProps={{ 
                     endAdornment: (
                         <InputAdornment position='end'>
@@ -34,8 +37,8 @@ const SearchBar = ({tasks, lists}) => {
                         </InputAdornment>
                       )}}
             />
-            <div className="results">
-                { searchResults.tasks !== undefined && 
+            <div className="results" style={{position:'absolute', top:60, zIndex:999}}>
+                { searchResults.tasks !== undefined && focus &&
                 <Stack>
                     {searchResults.tasks.map(task => 
                         <Paper onClick={() => alert('hi')}
@@ -43,7 +46,7 @@ const SearchBar = ({tasks, lists}) => {
                             <TaskIcon/>{task.attributes.name}
                         </Paper>)}
                 </Stack> }
-                { searchResults.lists !== undefined && 
+                { searchResults.lists !== undefined && focus &&
                 <Stack>
                     {searchResults.lists.map(list => 
                         <Paper key={"l" + list.id}>
