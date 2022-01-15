@@ -1,11 +1,10 @@
 import React, { useState } from 'react'
-import {Button, TextField, Card, ButtonGroup, CardActions, Stack} from '@mui/material'
+import {Button, TextField, Card, ButtonGroup, Stack, IconButton} from '@mui/material'
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
 
-const TaskForm = ({handleSubmit}) => {
+const TaskForm = ({handleSubmit, active, setActiveAddTask}) => {
     const [task, setTask] = useState({name: '', description: ''})
-    const [active, setActive] = useState(false);
 
     const handleChange = e => {
         e.preventDefault();
@@ -16,32 +15,29 @@ const TaskForm = ({handleSubmit}) => {
 
     const activeView = () => (
         <Card>
-            <form onSubmit ={e => {handleSubmit(e, task); setTask({name: '', description: ''})}}>
-                <Stack spacing={2}>
-                    <TextField sx={{mt:1}}
+            <form onSubmit ={e => {handleSubmit(e, task); setActiveAddTask(false); setTask({name: '', description: ''})}}>
+                <Stack>
+                    <TextField sx={{m:2}}
                         onChange={handleChange} label="name"
                         name="name" value={task.name} 
                         placeholder="My new task">
                     </TextField>
-                    <TextField
+                    <TextField sx={{m:2}}
                         label="description"
                         onChange={handleChange} name="description" value={task.description} 
                         placeholder="description">
                     </TextField>
                 </Stack>
-                <ButtonGroup>
-                    <Button type="submit"><SaveIcon/></Button>
-                    <Button onClick={() => {setActive(false); setTask({name: '', description: ''})}}><CancelIcon/></Button>
+                <ButtonGroup sx={{m:2}}>
+                    <IconButton type="submit"><SaveIcon/></IconButton>
+                    <IconButton onClick={() => {setActiveAddTask(false); setTask({name: '', description: ''})}}><CancelIcon/></IconButton>
                 </ButtonGroup>
             </form>
         </Card>
     )
     
-    const inactiveView = () => ( 
-        <CardActions><Button onClick={() => setActive(true)}>add new task</Button></CardActions>
-    )
 
-    return active ? activeView() : inactiveView() 
+    return active && activeView()
         
 }
 

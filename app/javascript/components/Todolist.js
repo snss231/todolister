@@ -2,10 +2,22 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import Task from './Task'
 import TaskForm from './TaskForm' 
-import { Card, CardHeader, Stack } from '@mui/material'
+import { Stack, IconButton, Button, TextField, Box, Typography, Paper } from '@mui/material'
+import AddIcon from '@mui/icons-material/Add';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
+import EditIcon from '@mui/icons-material/Edit';
+import Edit from '@mui/icons-material/Edit'
 
-const Todolist = ({ id, attributes }) => {
+const Todolist = ({ id, attributes, handleDeleteList }) => {
     const [tasks, setTasks] = useState([])
+    const [editMode, setEditMode] = useState(false)
+    const [listName, setListName] = useState(attributes.name)
+    const [editingName, setEditingName] = useState()
+    const [activeAddTask, setActiveAddTask] = useState(false)
+    const [showButtons, setShowButtons] = useState(false)
+
+    const csrfToken = document.querySelector('[name=csrf-token]').content
+    axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken
 
     useEffect(() => {
         axios.get(`/api/v1/todolists/${id}`)
@@ -15,13 +27,13 @@ const Todolist = ({ id, attributes }) => {
         .catch(resp => console.log(resp))
     }, [tasks.length])
 
+    useEffect(() => {
+        setListName(listName)
+    }, [listName])
     
     const handleSubmit = (e, task) => {
-        e.preventDefault();
-
-        const csrfToken = document.querySelector('[name=csrf-token]').content
-        axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken
-
+        e.preventDefault()
+        
         const todolist_id = id
 
         axios.post('/api/v1/tasks', {task, todolist_id})
@@ -33,7 +45,7 @@ const Todolist = ({ id, attributes }) => {
     }
 
     const handleDelete = (e, taskId) => {
-        e.preventDefault();
+        e.preventDefault()
         console.log(taskId)
         axios.delete(`/api/v1/tasks/${taskId}`)
         .then(resp => {
@@ -41,27 +53,77 @@ const Todolist = ({ id, attributes }) => {
         })
     }
 
+    const handleChange = e => {
+        e.preventDefault()
+        setEditingName(e.target.value)
+    }
+
+    const handleSubmitRename = e => {
+        e.preventDefault()
+        const name = editingName
+        axios.patch(`/api/v1/todolists/${id}`, {todolist: {name: name}})
+             .then(resp => {
+                setEditMode(false); setListName(name);
+             })
+        
+    }
+
+
 
     const taskList = tasks.map(({id, attributes}) => {
-            return (<Task
+        return (<Task
                 key={id}
                 name={attributes.name} 
                 description={attributes.description} 
                 id={id}
                 due_date={attributes.due_date === null ? null : new Date(attributes.due_date)}
+                completed={attributes.completed}
                 handleDelete={handleDelete}>
             </Task>)
         }
     )
 
+    const editView = () => (
+            <form onSubmit={handleSubmitRename}>
+                <TextField sx={{mt:1}}
+                    onChange={handleChange} label="name"
+                    name="name" value={editingName} ></TextField>
+                <br/>
+                <Button type="submit">save</Button>
+                <Button onClick={()=>setEditMode(false)}>cancel</Button>
+            </form>
+    )
+    
+    const defaultView = () => (
+        <>
+            <Box sx={{display:'flex', justifyContent:'space-between', flexWrap:'nowrap', position:'relative'}}  
+                onMouseEnter={() => setShowButtons(true)} 
+                onMouseLeave={() => setShowButtons(false)}>
+                <Typography variant="h5" 
+                    sx={{mt:4}} >
+                    {listName}
+                </Typography>
+                {showButtons &&
+                <Box sx={{mt:4, rowGap:0,  position: 'absolute', right:'0%'} }>
+                    <Paper sx={{display:'flex', alignItems:'center'}}>
+                        <IconButton onClick={e => handleDeleteList(e, id)} size='small'><DeleteOutlineIcon/></IconButton>
+                        <IconButton onClick={() => {setEditMode(true); setEditingName(listName)}} size='small'><EditIcon/></IconButton>
+                        <IconButton onClick={() => setActiveAddTask(true)} size='small'><AddIcon/></IconButton> 
+                    </Paper>
+                </Box> }
+            </Box>
+            <TaskForm active={activeAddTask} handleSubmit={handleSubmit} setActiveAddTask={setActiveAddTask}></TaskForm>
+        </>
+    )
+
     return (
-        <Card variant='outlined'>
-            <CardHeader title={attributes.name}></CardHeader>
-            <TaskForm handleSubmit={handleSubmit}></TaskForm>
-            <Stack>
+        <Box className="todolist">
+            { editMode ? editView() : defaultView() }
+            <hr/>
+            <Stack spacing={1}>
                 { taskList }
             </Stack>
-        </Card>
+        </Box>
     )
 }
 

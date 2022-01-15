@@ -1,24 +1,33 @@
 import axios from 'axios'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import DatePicker from 'react-datepicker'
 import "react-datepicker/dist/react-datepicker.css";
-import { Card, TextField, CardHeader, Button, CardActions, Box, CardContent, Stack, Typography } from '@mui/material'
+import { Card, TextField, CardHeader, ButtonGroup, CardActions, Box, CardContent, Stack, Typography, IconButton} from '@mui/material'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
-import DoneIcon from '@mui/icons-material/Done';
 import EditIcon from '@mui/icons-material/Edit';
+import DoneIcon from '@mui/icons-material/Done';
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 
-const Task = ({ name, description, id, handleDelete, due_date }) => {
+const Task = ({ name, description, id, handleDelete, due_date, completed }) => {
 
     const [editMode, setEditMode] = useState(false);
-    const [task, setTask] = useState({ name, description, due_date }) 
+    const [task, setTask] = useState({ name, description, due_date, completed })
+    const [editingTask, setEditingTask] = useState({})
     const [showButtons, setShowButtons] = useState(false)
+
+    const csrfToken = document.querySelector('[name=csrf-token]').content
+    axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken
+
+    useEffect(() => {
+        setTask(task)}
+    , [task])
 
     const handleSubmit = e => {
         e.preventDefault();
 
-        const csrfToken = document.querySelector('[name=csrf-token]').content
-        axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken
+        setTask({...editingTask})
 
         axios.patch(`/api/v1/tasks/${id}`, {task, id})
         .then(resp => {
@@ -28,13 +37,22 @@ const Task = ({ name, description, id, handleDelete, due_date }) => {
     }
 
     const handleChange = e => {
-        setTask(Object.assign({}, task, {[e.target.name]: e.target.value}))
-        //console.log('task: ', task)
+        setEditingTask(Object.assign({}, editingTask, {[e.target.name]: e.target.value}))
     }
 
     const handleDate = date => {
         console.log(date)
-        setTask(Object.assign({}, task, {due_date: date}))
+        setEditingTask(Object.assign({}, editingTask, {due_date: date}))
+    }
+    
+    const markCompleted = () => {
+        const completedTask = Object.assign({}, task, {completed: true})
+
+        axios.patch(`/api/v1/tasks/${id}`, {task: completedTask, id})
+        .then(resp => {
+            setTask(completedTask)
+        })
+        .catch()
     }
 
 
@@ -49,50 +67,48 @@ const Task = ({ name, description, id, handleDelete, due_date }) => {
                 <Typography variant="body2">
                     {task.due_date !== null && 'due: ' + task.due_date.toDateString()}
                 </Typography>
+                {task.completed && <div>completed!</div>}
             </CardContent>
             { showButtons &&
             <CardActions>
-                <Button onClick={() => setEditMode(true)} 
+                <IconButton onClick={() => {setEditMode(true); setEditingTask({...task});}} 
                     color="primary" 
-                    variant="contained" 
-                    size="small"><EditIcon/></Button>
-                <Button onClick={(e) => handleDelete(e, id)} 
+                    size="medium"><EditIcon/></IconButton>
+                <IconButton onClick={(e) => handleDelete(e, id)} 
                     color="error" 
-                    variant="contained" 
-                    size="small"><DeleteOutlineIcon/></Button>
-                <Button variant="contained" 
-                    size="small"
-                    color="success"><DoneIcon></DoneIcon></Button>
+                    size="medium"><DeleteOutlineIcon/></IconButton>
+                <IconButton onClick={() => markCompleted()} 
+                    size="medium"
+                    color="success"><DoneIcon/></IconButton>
             </CardActions>
             }  
         </Card>)
 
-    const editView = () =>  (
+    const editView = () =>  (   
         <Card>
             <Box component="form" onSubmit ={handleSubmit} margin='normal'>
-                <Stack spacing={2}>
-                    <TextField sx={{mt: 1}}
+                <Stack>
+                    <TextField sx={{m: 1}}
                         onChange={handleChange}
                         label="name"
                         name="name" 
-                        value={task.name} 
+                        value={editingTask.name} 
                         placeholder="My new task"/> 
-                    <TextField
+                    <TextField sx={{m:1}}
                         label="description" 
                         onChange={handleChange} 
                         name="description" 
-                        value={task.description} 
+                        value={editingTask.description} 
                         placeholder="description"
                         multiline={true}/>
-                    <DatePicker 
-                        selected={task.due_date}
+                    <DatePicker
+                        selected={editingTask.due_date}
                         onChange={handleDate} />
                 </Stack>
-                <CardActions>
-                    <Button type="submit">Save</Button>
-                    <Button onClick={() => setEditMode(false)}>Cancel</Button>
-                </CardActions>
-
+                <ButtonGroup>
+                    <IconButton type="submit"><SaveIcon/></IconButton>
+                    <IconButton onClick={() => {setEditMode(false);}}><CancelIcon/></IconButton>
+                </ButtonGroup>
             </Box>
         </Card>
     )

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_01_12_125856) do
+ActiveRecord::Schema.define(version: 2022_01_14_084957) do
 
   create_table "tasks", force: :cascade do |t|
     t.string "name"
@@ -21,6 +21,7 @@ ActiveRecord::Schema.define(version: 2022_01_12_125856) do
     t.string "label"
     t.date "due_date"
     t.time "due_time"
+    t.boolean "completed"
     t.index ["todolist_id"], name: "index_tasks_on_todolist_id"
   end
 

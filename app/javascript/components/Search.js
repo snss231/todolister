@@ -8,7 +8,8 @@ import TextField from '@mui/material/TextField'
 import InputAdornment from "@mui/material/InputAdornment"
 import SearchIcon from "@mui/icons-material/Search"
 
-const SearchBar = ({tasks, lists}) => {
+
+const Search = ({tasks, lists}) => {
     const [searchResults, setSearchResults] = useState({})
     const [focus, setFocus] = useState(false)
 
@@ -26,7 +27,7 @@ const SearchBar = ({tasks, lists}) => {
 
     return (
         <Box sx={{display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center', margin:'25px', position:'relative'}}>
-            <TextField type="text" id="outlined-basic" variant="outlined" label='Search' 
+            <TextField type="text" id="outlined-basic" variant="filled" label='Search'
                 onChange={handleFilter} 
                 onFocus={()=>setFocus(true)}
                 onBlur={()=>setFocus(false)}
@@ -35,7 +36,9 @@ const SearchBar = ({tasks, lists}) => {
                         <InputAdornment position='end'>
                             <SearchIcon />
                         </InputAdornment>
-                      )}}
+                      ),
+                    style: {backgroundColor:'white'}
+                    }}
             />
             <div className="results" style={{position:'absolute', top:60, zIndex:999}}>
                 { searchResults.tasks !== undefined && focus &&
@@ -58,4 +61,4 @@ const SearchBar = ({tasks, lists}) => {
     )
 }
 
-export default SearchBar
+export default Search
