@@ -40,16 +40,15 @@ const Main = () => {
         setView('listView')
     }
 
-    const handleDeleteList = (e, id) => {
-        e.preventDefault()
+    const handleDeleteList = (id) => {
         axios.delete(`/api/v1/todolists/${id}`)
              .then(resp => {
                  setTodolists(todolists.filter(list => list.id !== id))
              })
     }
 
-    const handleDeleteTask = (e, taskId) => {
-        e.preventDefault()
+    const handleDeleteTask = (taskId) => {
+        //e.preventDefault()
         console.log(taskId)
         axios.delete(`/api/v1/tasks/${taskId}`)
         .then(resp => {

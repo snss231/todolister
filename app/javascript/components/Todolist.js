@@ -2,11 +2,10 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import Task from './Task'
 import TaskForm from './TaskForm' 
-import { Stack, IconButton, Button, TextField, Box, Typography, Paper } from '@mui/material'
+import { Dialog, DialogTitle, DialogActions, IconButton, Button, TextField, Box, Typography, Paper } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import EditIcon from '@mui/icons-material/Edit';
-import Edit from '@mui/icons-material/Edit'
 
 const Todolist = ({ id, attributes, handleDeleteList, handleDeleteTask }) => {
     const [tasks, setTasks] = useState([])
@@ -15,6 +14,7 @@ const Todolist = ({ id, attributes, handleDeleteList, handleDeleteTask }) => {
     const [editingName, setEditingName] = useState()
     const [activeAddTask, setActiveAddTask] = useState(false)
     const [showButtons, setShowButtons] = useState(false)
+    const [deleteDialog, setDeleteDialog] = useState(false)
 
     const csrfToken = document.querySelector('[name=csrf-token]').content
     axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken
@@ -44,10 +44,6 @@ const Todolist = ({ id, attributes, handleDeleteList, handleDeleteTask }) => {
         .catch(resp => {}   )
     }
 
-    const handleDelete = (e, taskId) => {
-        e.preventDefault()
-        setTasks([])
-    }
 
     const handleChange = e => {
         e.preventDefault()
@@ -74,7 +70,7 @@ const Todolist = ({ id, attributes, handleDeleteList, handleDeleteTask }) => {
                 id={id}
                 due_date={attributes.due_date === null ? null : new Date(attributes.due_date)}
                 completed={attributes.completed}
-                handleDelete={(e, id) => {handleDeleteTask(e, id); setTasks(tasks.filter(task => task.id !== id))}}/>)
+                handleDelete={(id) => {handleDeleteTask(id); setTasks(tasks.filter(task => task.id !== id))}}/>)
         }
     )
 
@@ -101,13 +97,20 @@ const Todolist = ({ id, attributes, handleDeleteList, handleDeleteTask }) => {
                 {showButtons &&
                 <Box sx={{mt:4, rowGap:0,  position: 'absolute', right:'0%'} }>
                     <Paper sx={{display:'flex', alignItems:'center'}}>
-                        <IconButton onClick={e => handleDeleteList(e, id)} size='small'><DeleteOutlineIcon/></IconButton>
+                        <IconButton onClick={e => {setDeleteDialog(true)}} size='small'><DeleteOutlineIcon/></IconButton>
                         <IconButton onClick={() => {setEditMode(true); setEditingName(listName)}} size='small'><EditIcon/></IconButton>
                         <IconButton onClick={() => setActiveAddTask(true)} size='small'><AddIcon/></IconButton> 
                     </Paper>
                 </Box> }
             </Box>
             <TaskForm active={activeAddTask} handleSubmit={handleSubmit} setActiveAddTask={setActiveAddTask}></TaskForm>
+            <Dialog onClose ={()=>setDeleteDialog(false)} open={deleteDialog}>
+                <DialogTitle>Are you sure you want to delete "{attributes.name}"?</DialogTitle>
+                <DialogActions>
+                    <Button onClick={()=>{setDeleteDialog(false); handleDeleteList(id)}}>Delete</Button>
+                    <Button onClick={()=>setDeleteDialog(false)}>Cancel</Button>
+                </DialogActions>
+            </Dialog>
         </>
     )
 

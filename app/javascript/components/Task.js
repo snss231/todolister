@@ -2,7 +2,7 @@ import axios from 'axios'
 import React, { useState, useEffect } from 'react'
 import DatePicker from 'react-datepicker'
 import "react-datepicker/dist/react-datepicker.css";
-import { Card, TextField, CardHeader, ButtonGroup, CardActions, Box, CardContent, Stack, Typography, IconButton} from '@mui/material'
+import { Card, TextField, CardHeader, ButtonGroup, CardActions, Box, CardContent, Stack, Typography, IconButton, Dialog, DialogTitle, DialogActions, Button} from '@mui/material'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import EditIcon from '@mui/icons-material/Edit';
 import DoneIcon from '@mui/icons-material/Done';
@@ -16,6 +16,7 @@ const Task = ({ name, description, id, handleDelete, due_date, completed }) => {
     const [task, setTask] = useState({ name, description, due_date, completed })
     const [editingTask, setEditingTask] = useState({})
     const [showButtons, setShowButtons] = useState(false)
+    const [deleteDialog, setDeleteDialog] = useState(false);
 
     const csrfToken = document.querySelector('[name=csrf-token]').content
     axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken
@@ -75,7 +76,7 @@ const Task = ({ name, description, id, handleDelete, due_date, completed }) => {
                 <IconButton onClick={() => {setEditMode(true); setEditingTask({...task});}} 
                     color="primary" 
                     size="medium"><EditIcon/></IconButton>
-                <IconButton onClick={(e) => handleDelete(e, id)} 
+                <IconButton onClick={() => {setDeleteDialog(true)}} 
                     color="error" 
                     size="medium"><DeleteOutlineIcon/></IconButton>
                 <IconButton onClick={() => markCompleted()} 
@@ -83,6 +84,13 @@ const Task = ({ name, description, id, handleDelete, due_date, completed }) => {
                     color="success"><DoneIcon/></IconButton>
             </CardActions>
             }  
+            <Dialog onClose ={()=>setDeleteDialog(false)} open={deleteDialog}>
+                <DialogTitle>Are you sure you want to delete "{name}"?</DialogTitle>
+                <DialogActions>
+                    <Button onClick={()=>{setDeleteDialog(false); handleDelete(id)}}>Delete</Button>
+                    <Button onClick={()=>setDeleteDialog(false)}>Cancel</Button>
+                </DialogActions>
+            </Dialog>
         </Card>)
 
     const editView = () =>  (   
