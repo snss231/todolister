@@ -58,7 +58,8 @@ const Task = ({ name, description, id, handleDelete, due_date, completed }) => {
 
     const defaultView = () => (
         <Card onMouseEnter={() => setShowButtons(true)}
-            onMouseLeave={() => setShowButtons(false)}>
+            onMouseLeave={() => setShowButtons(false)}
+            elevation={6}>
             <CardHeader 
                 title={task.name}
                 subheader={task.description}
@@ -114,7 +115,12 @@ const Task = ({ name, description, id, handleDelete, due_date, completed }) => {
     )
 
 
-    return editMode ? editView() : defaultView();
+    return (
+        <Box sx={{m:1}}>
+             {editMode ? editView() : defaultView()}
+        </Box>
+    
+    )
 }
 
 

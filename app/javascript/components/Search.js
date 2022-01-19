@@ -1,62 +1,72 @@
 import React, {useState} from 'react'
-import Stack from '@mui/material/Stack'
-import Paper from '@mui/material/Paper'
 import Box from '@mui/material/Box'
-import ListIcon from '@mui/icons-material/List'
-import TaskIcon from '@mui/icons-material/Task'
-import TextField from '@mui/material/TextField'
-import InputAdornment from "@mui/material/InputAdornment"
+import { styled, alpha } from '@mui/material/styles'
+import InputBase from '@mui/material/InputBase'
 import SearchIcon from "@mui/icons-material/Search"
 
 
-const Search = ({tasks, lists}) => {
-    const [searchResults, setSearchResults] = useState({})
+const SearchBar = styled('div')(({ theme }) => ({
+    position: 'relative',
+    borderRadius: theme.shape.borderRadius,
+    backgroundColor: alpha(theme.palette.common.white, 0.15),
+    '&:hover': {
+      backgroundColor: alpha(theme.palette.common.white, 0.25),
+    },
+    marginRight: theme.spacing(2),
+    marginLeft: 0,
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+      marginLeft: theme.spacing(3),
+      width: 'auto',
+    },
+  }));
+  
+  const SearchIconWrapper = styled('div')(({ theme }) => ({
+    padding: theme.spacing(0, 2),
+    height: '100%',
+    position: 'absolute',
+    pointerEvents: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  }));
+  
+  const StyledInputBase = styled(InputBase)(({ theme }) => ({
+    color: 'inherit',
+    '& .MuiInputBase-input': {
+      padding: theme.spacing(1, 1, 1, 0),
+      // vertical padding + font size from searchIcon
+      paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+      transition: theme.transitions.create('width'),
+      width: '100%',
+      [theme.breakpoints.up('md')]: {
+        width: '20ch',
+      },
+    },
+  }));
+
+const Search = ({ onSearch }) => {
     const [focus, setFocus] = useState(false)
 
     const handleFilter = e => {
-        const filter = e.target.value
-        if (filter == '') {
-            setSearchResults({})
-            return;
-        }
-        const filteredTasks = tasks.filter(task => task.attributes.name.toLowerCase().includes(filter.toLowerCase()))
-        const filteredLists = lists.filter(list => list.attributes.name.toLowerCase().includes(filter.toLowerCase()))
-        setSearchResults({tasks: filteredTasks, 
-                          lists: filteredLists})
+        onSearch(e.target.value)
     }
 
+
     return (
-        <Box sx={{display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center', margin:'25px', position:'relative'}}>
-            <TextField type="text" id="outlined-basic" variant="filled" label='Search'
-                onChange={handleFilter} 
-                onFocus={()=>setFocus(true)}
-                onBlur={()=>setFocus(false)}
-                InputProps={{ 
-                    endAdornment: (
-                        <InputAdornment position='end'>
-                            <SearchIcon />
-                        </InputAdornment>
-                      ),
-                    style: {backgroundColor:'white'}
-                    }}
+        <Box sx={{display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center', position:'relative'}}>
+        <SearchBar>
+            <SearchIconWrapper>
+              <SearchIcon />
+            </SearchIconWrapper>
+            <StyledInputBase
+              placeholder="Search…"
+              inputProps={{ 'aria-label': 'search' }}
+              onFocus={()=>setFocus(true)}
+              onBlur={()=>setFocus(false)}
+              onChange={handleFilter}
             />
-            <div className="results" style={{position:'absolute', top:60, zIndex:999}}>
-                { searchResults.tasks !== undefined && focus &&
-                <Stack>
-                    {searchResults.tasks.map(task => 
-                        <Paper onClick={() => alert('hi')}
-                               key={"t" + task.id}>
-                            <TaskIcon/>{task.attributes.name}
-                        </Paper>)}
-                </Stack> }
-                { searchResults.lists !== undefined && focus &&
-                <Stack>
-                    {searchResults.lists.map(list => 
-                        <Paper key={"l" + list.id}>
-                            <ListIcon/>{list.attributes.name}
-                        </Paper>)}
-                </Stack> }
-            </div>
+          </SearchBar>
         </Box>
     )
 }

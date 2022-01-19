@@ -8,7 +8,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import EditIcon from '@mui/icons-material/Edit';
 import Edit from '@mui/icons-material/Edit'
 
-const Todolist = ({ id, attributes, handleDeleteList }) => {
+const Todolist = ({ id, attributes, handleDeleteList, handleDeleteTask }) => {
     const [tasks, setTasks] = useState([])
     const [editMode, setEditMode] = useState(false)
     const [listName, setListName] = useState(attributes.name)
@@ -46,11 +46,7 @@ const Todolist = ({ id, attributes, handleDeleteList }) => {
 
     const handleDelete = (e, taskId) => {
         e.preventDefault()
-        console.log(taskId)
-        axios.delete(`/api/v1/tasks/${taskId}`)
-        .then(resp => {
-            setTasks(tasks.filter(task => task.id === taskId))
-        })
+        setTasks([])
     }
 
     const handleChange = e => {
@@ -78,8 +74,7 @@ const Todolist = ({ id, attributes, handleDeleteList }) => {
                 id={id}
                 due_date={attributes.due_date === null ? null : new Date(attributes.due_date)}
                 completed={attributes.completed}
-                handleDelete={handleDelete}>
-            </Task>)
+                handleDelete={(e, id) => {handleDeleteTask(e, id); setTasks(tasks.filter(task => task.id !== id))}}/>)
         }
     )
 
@@ -120,9 +115,15 @@ const Todolist = ({ id, attributes, handleDeleteList }) => {
         <Box className="todolist">
             { editMode ? editView() : defaultView() }
             <hr/>
-            <Stack spacing={1}>
+            <Box height='30em' 
+            sx={{overflow:'hidden',
+                pr:1,
+                '&:hover': {
+                    overflowY: 'auto',
+                }
+            }}>
                 { taskList }
-            </Stack>
+            </Box>
         </Box>
     )
 }

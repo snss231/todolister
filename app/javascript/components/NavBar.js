@@ -9,7 +9,7 @@ import AddIcon from '@mui/icons-material/Add';
 import Popover from '@mui/material/Popover'
 import TextField from '@mui/material/TextField'
 
-const NavBar = ({tasks, lists, handleNewList}) => {
+const NavBar = ({ handleNewList, onSearch }) => {
     const [anchor, setAnchor] = useState()
     const [name, setName] = useState('')
      
@@ -22,13 +22,13 @@ const NavBar = ({tasks, lists, handleNewList}) => {
                 position="sticky">
                 <Toolbar sx={{display:'flex', justifyContent:'space-between'}}>
                     <Typography
-                        variant="h4"
+                        variant="h5"
                         component="div"
                     >
                         Todolister
                     </Typography>
-                    <Search tasks={tasks} lists={lists}/>
-                    <Button color='secondary' variant='contained' startIcon={<AddIcon/>}
+                    <Search onSearch={onSearch}/>
+                    <Button color='primary' variant='contained' startIcon={<AddIcon/>}
                         onClick={e => {setAnchor(e.currentTarget)}}>
                         New Todolist
                     </Button>
