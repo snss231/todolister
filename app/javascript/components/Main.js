@@ -6,6 +6,8 @@ import NavBar from './NavBar'
 import Task from './Task'
 import ViewOptions from './ViewOptions'
 
+
+
 const Main = () => {
     const [todolists, setTodolists] = useState([])
     const [filteredTasks, setFilteredTasks] = useState([])
@@ -18,6 +20,8 @@ const Main = () => {
         },
     })
 
+
+
     useEffect(() => {
         axios.get('/api/v1/todolists')
         .then(resp => {
@@ -25,6 +29,7 @@ const Main = () => {
             setTasks(resp.data.included)
         })
         .catch(resp => console.log(resp))
+
     }, [todolists.length])
 
     const onSearch = (filter) => {
@@ -40,22 +45,6 @@ const Main = () => {
         setView('listView')
     }
 
-    const handleDeleteList = (id) => {
-        axios.delete(`/api/v1/todolists/${id}`)
-             .then(resp => {
-                 setTodolists(todolists.filter(list => list.id !== id))
-             })
-    }
-
-    const handleDeleteTask = (taskId) => {
-        //e.preventDefault()
-        console.log(taskId)
-        axios.delete(`/api/v1/tasks/${taskId}`)
-        .then(resp => {
-            setTasks(tasks.filter(task => task.id === taskId))
-        })
-    }
-
     const handleNewList = (e, name) => {
         e.preventDefault()
         const todolist = { name: name }
@@ -65,19 +54,52 @@ const Main = () => {
              })
              .catch(resp => console.log(resp))
     }
- 
+
+    const handleDeleteList = (id) => {
+        axios.delete(`/api/v1/todolists/${id}`)
+             .then(resp => {
+                 setTodolists(todolists.filter(list => list.id !== id))
+             })
+    }
+
+    const handleDeleteTask = (taskId) => {
+        e.preventDefault()
+        console.log(taskId)
+        axios.delete(`/api/v1/tasks/${taskId}`)
+        .then(resp => {
+            //todo //setTasks(tasks.filter(task => task.id === taskId))
+        })
+    }
+
+    const handleMarkTask = (task, taskId) => {
+        //e.preventDefault()
+        axios.patch(`/api/v1/tasks/${taskId}`, {task, taskId})
+        .then(resp => {})
+            //todo
+            
+        .catch()
+    }
+
+    const handleUnmarkTask = (task, taskId) => {
+       //e.preventDefault()
+        axios.patch(`/api/v1/tasks/${taskId}`, {task, taskId})
+        .then(resp => {
+            //todo
+        })
+    }
+
+    const handleEditTask = (task, taskId) => {
+        axios.patch(`/api/v1/tasks/${taskId}`, {task, taskId})
+            .then(resp => {
+                //setEditMode(false)
+            })
+            .catch()
+        update()
+    }
+
 
     const listView = () => {
-        const lists = todolists.map(({ id, attributes }) => {
-            return <Grid item xs={12} sm={6} md={4} lg={3} key={id}>
-                <Todolist id={id} 
-                    attributes={attributes} 
-                    handleDeleteList={handleDeleteList}
-                    handleDeleteTask={handleDeleteTask}
-                    />
-                </Grid>
-        })
-        return (<Grid container spacing={2}>{lists}</Grid>)
+        return (<Grid container spacing={2}>{lists()}</Grid>)
     }
 
     const searchView = () => {
@@ -111,19 +133,30 @@ const Main = () => {
         }
     }
 
+    const lists = () => todolists.map(({ id, attributes }) => {
+        console.log('hiii')
+        return <Grid item xs={12} sm={6} md={4} lg={3} key={id}>
+            <Todolist id={id} 
+                attributes={attributes} 
+                handleDeleteList={handleDeleteList}
+                handleDeleteTask={handleDeleteTask}
+                handleMarkTask={handleMarkTask}
+                handleUnmarkTask={handleUnmarkTask}
+                handleEditTask={handleEditTask}/>
+            </Grid>
+    })
     return (
         <ThemeProvider theme={theme}>
-            <div className="App">
+            <div className="App" style={{height:"100%"}}>
                 <NavBar handleNewList={handleNewList}
                     onAbortSearch={onAbortSearch}
                     onSearch={onSearch}/>
                 <ViewOptions/>
-                <Paper style={{height:'100%'}}>
-                    <Box className='content' ml={1} mr={1} mt={1}>
-                        {getView(view)}
-                    </Box>
-                </Paper>
+                <Box className='content' ml={1} mr={1} mt={1}>
+                    {getView(view)}
+                </Box>
             </div>
+            {console.log('rerender')}
         </ThemeProvider>
     )
 }

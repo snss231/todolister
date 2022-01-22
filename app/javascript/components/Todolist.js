@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import Task from './Task'
 import TaskForm from './TaskForm' 
-import { Dialog, DialogTitle, DialogActions, IconButton, Button, TextField, Box, Typography, Paper } from '@mui/material'
-import AddIcon from '@mui/icons-material/Add';
+import { Dialog, DialogTitle, DialogActions, IconButton, Button, TextField, Box, Typography, Paper, Collapse } from '@mui/material'
+import AddIcon from '@mui/icons-material/Add'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
-import EditIcon from '@mui/icons-material/Edit';
+import EditIcon from '@mui/icons-material/Edit'
+import DoneIcon from '@mui/icons-material/Done'
+import CloseIcon from '@mui/icons-material/Close'
 
-const Todolist = ({ id, attributes, handleDeleteList, handleDeleteTask }) => {
+ 
+const Todolist = ({ id, attributes, handleDeleteList }) => {
     const [tasks, setTasks] = useState([])
     const [editMode, setEditMode] = useState(false)
     const [listName, setListName] = useState(attributes.name)
@@ -15,8 +18,8 @@ const Todolist = ({ id, attributes, handleDeleteList, handleDeleteTask }) => {
     const [activeAddTask, setActiveAddTask] = useState(false)
     const [showButtons, setShowButtons] = useState(false)
     const [deleteDialog, setDeleteDialog] = useState(false)
-
     const csrfToken = document.querySelector('[name=csrf-token]').content
+    const [expanded, setExpanded] = useState(false)
     axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken
 
     useEffect(() => {
@@ -26,10 +29,6 @@ const Todolist = ({ id, attributes, handleDeleteList, handleDeleteTask }) => {
         })
         .catch(resp => console.log(resp))
     }, [tasks.length])
-
-    useEffect(() => {
-        setListName(listName)
-    }, [listName])
     
     const handleSubmit = (e, task) => {
         e.preventDefault()
@@ -60,28 +59,88 @@ const Todolist = ({ id, attributes, handleDeleteList, handleDeleteTask }) => {
         
     }
 
+    const handleDeleteTask = (taskId) => {
+        e.preventDefault()
+        console.log(taskId)
+        axios.delete(`/api/v1/tasks/${taskId}`)
+        .then(resp => {
+            //todo //setTasks(tasks.filter(task => task.id === taskId))
+        })
+    }
+
+    const handleMarkTask = (task, taskId) => {
+        //e.preventDefault()
+        axios.patch(`/api/v1/tasks/${taskId}`, {task, taskId})
+        .then(resp => {setTasks([])})
+            //todo
+            
+        .catch()
+    }
+
+    const handleUnmarkTask = (task, taskId) => {
+       //e.preventDefault()
+        axios.patch(`/api/v1/tasks/${taskId}`, {task, taskId})
+        .then(resp => {setTasks([])
+            //todo
+        })
+    }
+
+    const handleEditTask = (task, taskId) => {
+        axios.patch(`/api/v1/tasks/${taskId}`, {task, taskId})
+             .then(resp => {
+                
+             })
+             .catch()
+    }
 
 
-    const taskList = tasks.map(({id, attributes}) => {
+
+    const incompleteTasks = tasks.filter(({attributes}) => !attributes.completed)
+                                  .map(({id, attributes}) => {
+        const { name, description, due_date, completed } = attributes;
         return (<Task
                 key={id}
-                name={attributes.name} 
-                description={attributes.description} 
+                name={name} 
+                description={description} 
                 id={id}
-                due_date={attributes.due_date === null ? null : new Date(attributes.due_date)}
-                completed={attributes.completed}
-                handleDelete={(id) => {handleDeleteTask(id); setTasks(tasks.filter(task => task.id !== id))}}/>)
-        }
-    )
+                due_date={due_date === null ? null : new Date(due_date)}
+                completed={completed}
+                handleDelete={(id) => {handleDeleteTask(id); setTasks(tasks.filter(task => task.id !== id))}}
+                handleMark={handleMarkTask}
+                handleUnmark={handleUnmarkTask}
+                handleEdit={handleEditTask}/>)
+    })
+    
+    const completedTasks = tasks.filter(({attributes}) => attributes.completed)
+                                .map(({id, attributes}) => {
+        const { name, description, due_date, completed } = attributes;
+        return (<Task
+                key={id}
+                name={name} 
+                description={description} 
+                id={id}
+                due_date={due_date === null ? null : new Date(due_date)}
+                completed={completed}
+                handleDelete={(id) => {handleDeleteTask(id); setTasks(tasks.filter(task => task.id !== id))}}
+                handleMark={handleMarkTask}
+                handleUnmark={handleUnmarkTask}
+                handleEdit={handleEditTask}/>)
+    })
 
     const editView = () => (
             <form onSubmit={handleSubmitRename}>
-                <TextField sx={{mt:1}}
-                    onChange={handleChange} label="name"
-                    name="name" value={editingName} ></TextField>
-                <br/>
-                <Button type="submit">save</Button>
-                <Button onClick={()=>setEditMode(false)}>cancel</Button>
+                <Box sx={{display:'flex', 
+                    flexWrap:'nowrap', 
+                    justifyContent:'space-between',
+                    }}>
+                    <TextField sx={{mt:1}}
+                        onChange={handleChange} label="name" variant="standard"
+                        name="name" value={editingName} ></TextField>
+                    <Box sx={{display:'flex', alignItems:'bottom'}}>
+                        <IconButton type="submit"><DoneIcon/></IconButton>
+                        <IconButton onClick={()=>setEditMode(false)}><CloseIcon/></IconButton>
+                    </Box>
+                </Box>
             </form>
     )
     
@@ -103,7 +162,7 @@ const Todolist = ({ id, attributes, handleDeleteList, handleDeleteTask }) => {
                     </Paper>
                 </Box> }
             </Box>
-            <TaskForm active={activeAddTask} handleSubmit={handleSubmit} setActiveAddTask={setActiveAddTask}></TaskForm>
+            <TaskForm active={activeAddTask} handleSubmit={handleSubmit} setActiveAddTask={setActiveAddTask}/>
             <Dialog onClose ={()=>setDeleteDialog(false)} open={deleteDialog}>
                 <DialogTitle>Are you sure you want to delete "{attributes.name}"?</DialogTitle>
                 <DialogActions>
@@ -118,14 +177,19 @@ const Todolist = ({ id, attributes, handleDeleteList, handleDeleteTask }) => {
         <Box className="todolist">
             { editMode ? editView() : defaultView() }
             <hr/>
-            <Box height='30em' 
-            sx={{overflow:'hidden',
-                pr:1,
+            <Box height='30rem' sx={{
+                overflow:'auto',
+                visibility:'hidden',
                 '&:hover': {
-                    overflowY: 'auto',
+                    visibility: 'visible',
                 }
             }}>
-                { taskList }
+                <Box sx={{visibility:'visible'}}>
+                    { incompleteTasks }
+                    {completedTasks.length !== 0 && <Paper><Button onClick={()=>{setExpanded(!expanded)}}>Show Completed Tasks ({completedTasks.length})</Button></Paper> }
+                    <Collapse in={expanded} unmountOnExit>{ completedTasks }</Collapse>
+                    
+                </Box>
             </Box>
         </Box>
     )

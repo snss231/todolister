@@ -23,14 +23,13 @@ const NavBar = ({ handleNewList, onSearch }) => {
                 <Toolbar sx={{display:'flex', justifyContent:'space-between'}}>
                     <Typography
                         variant="h5"
-                        component="div"
-                    >
-                        Todolister
+                        component="div">
+                    Todolister
                     </Typography>
                     <Search onSearch={onSearch}/>
                     <Button color='primary' variant='contained' startIcon={<AddIcon/>}
                         onClick={e => {setAnchor(e.currentTarget)}}>
-                        New Todolist
+                        New List
                     </Button>
                     <Popover
                         id={id}
