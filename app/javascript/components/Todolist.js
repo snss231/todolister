@@ -9,8 +9,9 @@ import EditIcon from '@mui/icons-material/Edit'
 import DoneIcon from '@mui/icons-material/Done'
 import CloseIcon from '@mui/icons-material/Close'
 
+
  
-const Todolist = ({ id, attributes, handleDeleteList, onUpdateTodolist }) => {
+const Todolist = ({ id, attributes, handleDeleteList, update }) => {
     const [tasks, setTasks] = useState([])
     const [editMode, setEditMode] = useState(false)
     const [listName, setListName] = useState(attributes.name)
@@ -39,7 +40,7 @@ const Todolist = ({ id, attributes, handleDeleteList, onUpdateTodolist }) => {
         .then(resp => {
             const updatedTasks = [ ...tasks, resp.data.data ]
             setTasks(updatedTasks)
-            onUpdateTodolist()
+            update()
         })
         .catch(resp => {}   )
     }
@@ -57,7 +58,7 @@ const Todolist = ({ id, attributes, handleDeleteList, onUpdateTodolist }) => {
              .then(resp => {
                 setEditMode(false);
                 setListName(name)
-                onUpdateTodolist()
+                update()
              })
         
     }
@@ -67,15 +68,16 @@ const Todolist = ({ id, attributes, handleDeleteList, onUpdateTodolist }) => {
         axios.delete(`/api/v1/tasks/${taskId}`)
         .then(resp => {
             setTasks(tasks.filter(task => task.id === taskId))
-            onUpdateTodolist()
+            update()
         })
     }
 
     const handleMarkTask = (task, taskId) => {
         //e.preventDefault()
         axios.patch(`/api/v1/tasks/${taskId}`, {task, taskId})
-        .then(resp => {setTasks([])})
-            onUpdateTodolist()        
+        .then(resp => {setTasks([])
+            update()
+        })
         .catch()
     }
 
@@ -83,14 +85,15 @@ const Todolist = ({ id, attributes, handleDeleteList, onUpdateTodolist }) => {
        //e.preventDefault()
         axios.patch(`/api/v1/tasks/${taskId}`, {task, taskId})
         .then(resp => {setTasks([])
-            onUpdateTodolist()
+            //todo
+            update()
         })
     }
 
     const handleEditTask = (task, taskId) => {
         axios.patch(`/api/v1/tasks/${taskId}`, {task, taskId})
-             .then(resp => {
-                
+             .then(resp => {setTasks([])
+                update()
              })
              .catch()
     }
@@ -139,8 +142,8 @@ const Todolist = ({ id, attributes, handleDeleteList, onUpdateTodolist }) => {
                         onChange={handleChange} label="name" variant="standard"
                         name="name" value={editingName} ></TextField>
                     <Box sx={{display:'flex', alignItems:'bottom'}}>
-                        <IconButton type="submit"><DoneIcon/></IconButton>
-                        <IconButton onClick={()=>setEditMode(false)}><CloseIcon/></IconButton>
+                        <IconButton color="success" type="submit"><DoneIcon/></IconButton>
+                        <IconButton color="error" onClick={()=>setEditMode(false)}><CloseIcon/></IconButton>
                     </Box>
                 </Box>
             </form>
@@ -158,9 +161,18 @@ const Todolist = ({ id, attributes, handleDeleteList, onUpdateTodolist }) => {
                 {showButtons &&
                 <Box sx={{mt:4, rowGap:0,  position: 'absolute', right:'0%'} }>
                     <Paper sx={{display:'flex', alignItems:'center'}}>
-                        <IconButton onClick={e => {setDeleteDialog(true)}} size='small'><DeleteOutlineIcon/></IconButton>
-                        <IconButton onClick={() => {setEditMode(true); setEditingName(listName)}} size='small'><EditIcon/></IconButton>
-                        <IconButton onClick={() => setActiveAddTask(true)} size='small'><AddIcon/></IconButton> 
+                        <IconButton onClick={() => {setEditMode(true); setEditingName(listName)}} 
+                            size='small' color='primary'>
+                            <EditIcon/>
+                        </IconButton>
+                        <IconButton onClick={() => {setDeleteDialog(true)}} 
+                            size='small' color='error'>
+                            <DeleteOutlineIcon/>
+                        </IconButton>
+                        <IconButton onClick={() => setActiveAddTask(true)} 
+                            size='small' color='success'>
+                            <AddIcon/>
+                        </IconButton> 
                     </Paper>
                 </Box> }
             </Box>

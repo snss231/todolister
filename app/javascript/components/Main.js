@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import Todolist from './Todolist'
-import { Grid, Box, createTheme, ThemeProvider, Paper } from '@mui/material'
+import { Grid, Box, createTheme, ThemeProvider, Paper, Switch, FormControlLabel } from '@mui/material'
 import NavBar from './NavBar'
 import Task from './Task'
 import ViewOptions from './ViewOptions'
@@ -12,7 +12,9 @@ const Main = () => {
     const [todolists, setTodolists] = useState([])
     const [filteredTasks, setFilteredTasks] = useState([])
     const [tasks, setTasks] = useState([])
+    const [filter, setFilter] = useState([])
     const [view, setView] = useState('listView')
+    const [showCompleted, setShowCompleted] = useState(false)
 
     const theme = createTheme({
         palette: {
@@ -20,10 +22,13 @@ const Main = () => {
         },
     })
 
-    const onUpdateTodolist = () => {
+    const update = () => {
         axios.get('/api/v1/todolists')
         .then(resp => {
+            setTodolists(resp.data.data)
             setTasks(resp.data.included)
+            console.log('wassup')
+            setFilteredTasks(resp.data.included.filter(task => task.attributes.name.includes(filter)))
         })
         .catch(resp => console.log(resp))
     }
@@ -38,6 +43,7 @@ const Main = () => {
     }, [todolists.length])
 
     const onSearch = (filter) => {
+        setFilter(filter)
         if (filter == '') {
             setView('listView')
         } else {
@@ -68,18 +74,19 @@ const Main = () => {
     }
 
     const handleDeleteTask = (taskId) => {
-        e.preventDefault()
         console.log(taskId)
         axios.delete(`/api/v1/tasks/${taskId}`)
         .then(resp => {
-            //todo //setTasks(tasks.filter(task => task.id === taskId))
+            setTasks(tasks.filter(task => task.id === taskId))
+            update()
         })
     }
 
     const handleMarkTask = (task, taskId) => {
         //e.preventDefault()
         axios.patch(`/api/v1/tasks/${taskId}`, {task, taskId})
-        .then(resp => {})
+        .then(resp => {setTasks([])
+            update()})
             //todo
             
         .catch()
@@ -88,42 +95,53 @@ const Main = () => {
     const handleUnmarkTask = (task, taskId) => {
        //e.preventDefault()
         axios.patch(`/api/v1/tasks/${taskId}`, {task, taskId})
-        .then(resp => {
+        .then(resp => {setTasks([])
             //todo
+            update()
         })
     }
 
     const handleEditTask = (task, taskId) => {
         axios.patch(`/api/v1/tasks/${taskId}`, {task, taskId})
-            .then(resp => {
-                //setEditMode(false)
-            })
-            .catch()
-        update()
+             .then(resp => {setTasks([])
+                update()
+             })
+             .catch()
     }
-
 
     const listView = () => {
         return (<Grid container spacing={2}>{lists()}</Grid>)
     }
 
     const searchView = () => {
-        const taskList = filteredTasks.map(({ attributes, id }) => {  
+        const taskList = filteredTasks
+            .filter(({attributes}) => !attributes.completed || showCompleted)
+            .map(({ attributes, id }) => {  
             const { name, description, due_date, completed } = attributes;
-            return (<Grid item xs={12} sm={6} md={4} lg={3} key={id}>
-                <Task
-                    name={name} 
-                    description={description} 
-                    id={id}
-                    due_date={due_date === null ? null : new Date(due_date)}
-                    completed={completed}
-                    handleDelete={handleDeleteTask}/>
-                </Grid>)
+            return (
+                <Grid item xs={12} sm={6} md={4} lg={3} key={id}>
+                    <Task
+                        name={name} 
+                        description={description} 
+                        id={id}
+                        due_date={due_date === null ? null : new Date(due_date)}
+                        completed={completed}
+                        handleDelete={handleDeleteTask}
+                        handleMark={handleMarkTask}
+                        handleUnmark={handleUnmarkTask}
+                        handleEdit={handleEditTask}/>
+                </Grid>
+           
+            )
         })
         return (
-            filteredTasks.length !== 0 
-                ? <Grid container spacing={2}>{taskList}</Grid> 
-                : <div>No tasks found with that search term. Try a different keyword?</div>
+            <Box>
+                <FormControlLabel control={<Switch onChange={()=>setShowCompleted(!showCompleted)}/>} label="show completed tasks"/>
+                {filteredTasks.length !== 0 
+                    ? <Grid container spacing={2}>{taskList}</Grid> 
+                    : <div>No tasks found with that search term. Try a different keyword?</div>}
+            </Box>
+                
         )
     }
 
@@ -139,13 +157,15 @@ const Main = () => {
     }
 
     const lists = () => todolists.map(({ id, attributes }) => {
-        console.log('hiii')
-        return <Grid item xs={12} sm={6} md={4} lg={3} key={id}>
-            <Todolist id={id} 
-                attributes={attributes} 
-                onUpdateTodolist={onUpdateTodolist}
-                handleDeleteList={handleDeleteList}/>
+        return (
+       
+            <Grid item xs={12} sm={6} md={4} lg={3} key={id}>
+                <Todolist id={id} 
+                    attributes={attributes} 
+                    update={update}
+                    handleDeleteList={handleDeleteList}/>
             </Grid>
+        )
     })
     return (
         <ThemeProvider theme={theme}>
@@ -153,12 +173,10 @@ const Main = () => {
                 <NavBar handleNewList={handleNewList}
                     onAbortSearch={onAbortSearch}
                     onSearch={onSearch}/>
-                <ViewOptions/>
                 <Box className='content' ml={1} mr={1} mt={1}>
                     {getView(view)}
                 </Box>
             </div>
-            {console.log('rerender')}
         </ThemeProvider>
     )
 }
