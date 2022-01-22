@@ -27,7 +27,6 @@ const Main = () => {
         .then(resp => {
             setTodolists(resp.data.data)
             setTasks(resp.data.included)
-            console.log('wassup')
             setFilteredTasks(resp.data.included.filter(task => task.attributes.name.includes(filter)))
         })
         .catch(resp => console.log(resp))

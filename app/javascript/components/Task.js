@@ -2,7 +2,7 @@ import axios from 'axios'
 import React, { useState, useEffect } from 'react'
 import DatePicker from 'react-datepicker'
 import "react-datepicker/dist/react-datepicker.css";
-import { Card, TextField, CardHeader, ButtonGroup, CardActions, Box, CardContent, Stack, Typography, IconButton, Dialog, DialogTitle, DialogActions, Button} from '@mui/material'
+import { Card, TextField, Collapse, ButtonGroup, CardActions, Box, CardContent, Stack, Typography, IconButton, Dialog, DialogTitle, DialogActions, Button} from '@mui/material'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import EditIcon from '@mui/icons-material/Edit';
 import DoneIcon from '@mui/icons-material/Done';
@@ -115,19 +115,20 @@ const Task = ({ name, description, id ,due_date, completed, handleDelete, handle
                     </Typography>
                 </Box>}   
             </CardContent>
-            { showButtons &&
-            <CardActions>
-                <IconButton onClick={() => {setEditMode(true); setEditingTask({...task});}} 
-                    color="primary" 
-                    size="medium"><EditIcon/></IconButton>
-                <IconButton onClick={() => {setDeleteDialog(true)}} 
-                    color="error" 
-                    size="medium"><DeleteOutlineIcon/></IconButton>
-                <IconButton onClick={() => markCompleted()} 
-                    size="medium"
-                    color="success"><DoneIcon/></IconButton>
-            </CardActions>
-            }  
+
+            <Collapse in={showButtons}>
+                <CardActions>
+                    <IconButton onClick={() => {setEditMode(true); setEditingTask({...task});}} 
+                        color="primary" 
+                        size="medium"><EditIcon/></IconButton>
+                    <IconButton onClick={() => {setDeleteDialog(true)}} 
+                        color="error" 
+                        size="medium"><DeleteOutlineIcon/></IconButton>
+                    <IconButton onClick={() => markCompleted()} 
+                        size="medium"
+                        color="success"><DoneIcon/></IconButton>
+                </CardActions> 
+            </Collapse>
             <Dialog onClose ={()=>setDeleteDialog(false)} open={deleteDialog}>
                 <DialogTitle>Are you sure you want to delete "{name}"?</DialogTitle>
                 <DialogActions>
@@ -163,8 +164,8 @@ const Task = ({ name, description, id ,due_date, completed, handleDelete, handle
                     </Box>
                 </Stack>
                 <ButtonGroup sx={{m:1}}>
-                    <IconButton type="submit"><SaveIcon/></IconButton>
-                    <IconButton onClick={() => {setEditMode(false);}}><CancelIcon/></IconButton>
+                    <IconButton type="submit" color="primary"><SaveIcon/></IconButton>
+                    <IconButton onClick={() => {setEditMode(false);}} color="error"><CancelIcon/></IconButton>
                 </ButtonGroup>
             </Box>
         </Card>

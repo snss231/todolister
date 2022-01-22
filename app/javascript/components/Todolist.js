@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import Task from './Task'
 import TaskForm from './TaskForm' 
-import { Dialog, DialogTitle, DialogActions, IconButton, Button, TextField, Box, Typography, Paper, Collapse } from '@mui/material'
+import { Dialog, DialogTitle, DialogActions, IconButton, Button, TextField, Box, Typography, Paper, Collapse, Fade} from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import EditIcon from '@mui/icons-material/Edit'
 import DoneIcon from '@mui/icons-material/Done'
 import CloseIcon from '@mui/icons-material/Close'
-
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
  
 const Todolist = ({ id, attributes, handleDeleteList, update }) => {
@@ -158,23 +159,24 @@ const Todolist = ({ id, attributes, handleDeleteList, update }) => {
                     sx={{mt:4}} >
                     {listName}
                 </Typography>
-                {showButtons &&
-                <Box sx={{mt:4, rowGap:0,  position: 'absolute', right:'0%'} }>
-                    <Paper sx={{display:'flex', alignItems:'center'}}>
-                        <IconButton onClick={() => {setEditMode(true); setEditingName(listName)}} 
-                            size='small' color='primary'>
-                            <EditIcon/>
-                        </IconButton>
-                        <IconButton onClick={() => {setDeleteDialog(true)}} 
-                            size='small' color='error'>
-                            <DeleteOutlineIcon/>
-                        </IconButton>
-                        <IconButton onClick={() => setActiveAddTask(true)} 
-                            size='small' color='success'>
-                            <AddIcon/>
-                        </IconButton> 
-                    </Paper>
-                </Box> }
+                <Fade in={showButtons}>
+                    <Box sx={{mt:4, rowGap:0,  position: 'absolute', right:'0%'} }>
+                        <Box sx={{display:'flex', alignItems:'center', gap:1}}>
+                            <IconButton onClick={() => {setEditMode(true); setEditingName(listName)}} 
+                                size='small' color='primary'>
+                                <EditIcon/>
+                            </IconButton>
+                            <IconButton onClick={() => {setDeleteDialog(true)}} 
+                                size='small' color='error'>
+                                <DeleteOutlineIcon/>
+                            </IconButton>
+                            <IconButton onClick={() => setActiveAddTask(true)} 
+                                size='small' color='success'>
+                                <AddIcon/>
+                            </IconButton> 
+                        </Box>
+                    </Box>
+                </Fade>
             </Box>
             <TaskForm active={activeAddTask} handleSubmit={handleSubmit} setActiveAddTask={setActiveAddTask}/>
             <Dialog onClose ={()=>setDeleteDialog(false)} open={deleteDialog}>
@@ -200,7 +202,10 @@ const Todolist = ({ id, attributes, handleDeleteList, update }) => {
             }}>
                 <Box sx={{visibility:'visible'}}>
                     { incompleteTasks }
-                    {completedTasks.length !== 0 && <Paper><Button onClick={()=>{setExpanded(!expanded)}}>Show Completed Tasks ({completedTasks.length})</Button></Paper> }
+                    {completedTasks.length !== 0 && 
+                    <Button onClick={()=>{setExpanded(!expanded)}}>
+                        {expanded ? 'Hide' : 'Show'} Completed Tasks ({completedTasks.length}) {expanded ? <ArrowDropUpIcon/> : <ArrowDropDownIcon/>}
+                    </Button>}
                     <Collapse in={expanded} unmountOnExit>{ completedTasks }</Collapse>
                     
                 </Box>
