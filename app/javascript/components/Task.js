@@ -142,6 +142,7 @@ const Task = ({ name, description, id, handleDelete, due_date, completed, handle
             { showButtons &&
             <CardActions>
                 <Button onClick={()=>unmarkCompleted()}>unmark task completed</Button>
+                <Button onClick={()=>unmarkCompleted()}>delete</Button>
             </CardActions>
             }  
             <Dialog onClose ={()=>setDeleteDialog(false)} open={deleteDialog}>

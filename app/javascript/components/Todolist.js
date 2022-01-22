@@ -10,7 +10,7 @@ import DoneIcon from '@mui/icons-material/Done'
 import CloseIcon from '@mui/icons-material/Close'
 
  
-const Todolist = ({ id, attributes, handleDeleteList }) => {
+const Todolist = ({ id, attributes, handleDeleteList, onUpdateTodolist }) => {
     const [tasks, setTasks] = useState([])
     const [editMode, setEditMode] = useState(false)
     const [listName, setListName] = useState(attributes.name)
@@ -39,6 +39,7 @@ const Todolist = ({ id, attributes, handleDeleteList }) => {
         .then(resp => {
             const updatedTasks = [ ...tasks, resp.data.data ]
             setTasks(updatedTasks)
+            onUpdateTodolist()
         })
         .catch(resp => {}   )
     }
@@ -54,17 +55,19 @@ const Todolist = ({ id, attributes, handleDeleteList }) => {
         const name = editingName
         axios.patch(`/api/v1/todolists/${id}`, {todolist: {name: name}})
              .then(resp => {
-                setEditMode(false); setListName(name);
+                setEditMode(false);
+                setListName(name)
+                onUpdateTodolist()
              })
         
     }
 
     const handleDeleteTask = (taskId) => {
-        e.preventDefault()
         console.log(taskId)
         axios.delete(`/api/v1/tasks/${taskId}`)
         .then(resp => {
-            //todo //setTasks(tasks.filter(task => task.id === taskId))
+            setTasks(tasks.filter(task => task.id === taskId))
+            onUpdateTodolist()
         })
     }
 
@@ -72,8 +75,7 @@ const Todolist = ({ id, attributes, handleDeleteList }) => {
         //e.preventDefault()
         axios.patch(`/api/v1/tasks/${taskId}`, {task, taskId})
         .then(resp => {setTasks([])})
-            //todo
-            
+            onUpdateTodolist()        
         .catch()
     }
 
@@ -81,7 +83,7 @@ const Todolist = ({ id, attributes, handleDeleteList }) => {
        //e.preventDefault()
         axios.patch(`/api/v1/tasks/${taskId}`, {task, taskId})
         .then(resp => {setTasks([])
-            //todo
+            onUpdateTodolist()
         })
     }
 
@@ -105,7 +107,7 @@ const Todolist = ({ id, attributes, handleDeleteList }) => {
                 id={id}
                 due_date={due_date === null ? null : new Date(due_date)}
                 completed={completed}
-                handleDelete={(id) => {handleDeleteTask(id); setTasks(tasks.filter(task => task.id !== id))}}
+                handleDelete={handleDeleteTask}
                 handleMark={handleMarkTask}
                 handleUnmark={handleUnmarkTask}
                 handleEdit={handleEditTask}/>)
@@ -121,7 +123,7 @@ const Todolist = ({ id, attributes, handleDeleteList }) => {
                 id={id}
                 due_date={due_date === null ? null : new Date(due_date)}
                 completed={completed}
-                handleDelete={(id) => {handleDeleteTask(id); setTasks(tasks.filter(task => task.id !== id))}}
+                handleDelete={handleDeleteTask}
                 handleMark={handleMarkTask}
                 handleUnmark={handleUnmarkTask}
                 handleEdit={handleEditTask}/>)

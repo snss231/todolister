@@ -20,7 +20,13 @@ const Main = () => {
         },
     })
 
-
+    const onUpdateTodolist = () => {
+        axios.get('/api/v1/todolists')
+        .then(resp => {
+            setTasks(resp.data.included)
+        })
+        .catch(resp => console.log(resp))
+    }
 
     useEffect(() => {
         axios.get('/api/v1/todolists')
@@ -29,7 +35,6 @@ const Main = () => {
             setTasks(resp.data.included)
         })
         .catch(resp => console.log(resp))
-
     }, [todolists.length])
 
     const onSearch = (filter) => {
@@ -138,11 +143,8 @@ const Main = () => {
         return <Grid item xs={12} sm={6} md={4} lg={3} key={id}>
             <Todolist id={id} 
                 attributes={attributes} 
-                handleDeleteList={handleDeleteList}
-                handleDeleteTask={handleDeleteTask}
-                handleMarkTask={handleMarkTask}
-                handleUnmarkTask={handleUnmarkTask}
-                handleEditTask={handleEditTask}/>
+                onUpdateTodolist={onUpdateTodolist}
+                handleDeleteList={handleDeleteList}/>
             </Grid>
     })
     return (

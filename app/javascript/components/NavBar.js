@@ -8,6 +8,15 @@ import Button from '@mui/material/Button'
 import AddIcon from '@mui/icons-material/Add';
 import Popover from '@mui/material/Popover'
 import TextField from '@mui/material/TextField'
+import { createTheme, ThemeProvider } from '@mui/material';
+
+const theme = createTheme({
+    palette: {
+        primary:{
+            main: '#fff'
+        }
+    }
+})
 
 const NavBar = ({ handleNewList, onSearch }) => {
     const [anchor, setAnchor] = useState()
@@ -27,10 +36,12 @@ const NavBar = ({ handleNewList, onSearch }) => {
                     Todolister
                     </Typography>
                     <Search onSearch={onSearch}/>
-                    <Button color='primary' variant='contained' startIcon={<AddIcon/>}
-                        onClick={e => {setAnchor(e.currentTarget)}}>
-                        New List
-                    </Button>
+                    <ThemeProvider theme={theme}>
+                        <Button color='primary' variant='outlined' startIcon={<AddIcon/>}
+                            onClick={e => {setAnchor(e.currentTarget)}}>
+                            New List
+                        </Button>
+                    </ThemeProvider>
                     <Popover
                         id={id}
                         open={open}
