@@ -61,7 +61,6 @@ const Task = ({ name, description, id ,due_date, completed, label, handleDelete,
     const csrfToken = document.querySelector('[name=csrf-token]').content
     axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken
 
-    
 
     const handleSubmit = e => {
         e.preventDefault();

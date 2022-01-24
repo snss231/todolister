@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import Task from './Task'
 import TaskForm from './TaskForm' 
-import { Dialog, DialogTitle, DialogActions, IconButton, Button, TextField, Box, Typography, Paper, Collapse, Fade} from '@mui/material'
+import { Dialog, DialogTitle, DialogActions, IconButton, Button, TextField, Box, Typography, Collapse, Fade} from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import EditIcon from '@mui/icons-material/Edit'
@@ -43,7 +43,6 @@ const Todolist = ({ id, attributes, handleDeleteList, update }) => {
             setTasks(updatedTasks)
             update()
         })
-        .catch(resp => {}   )
     }
 
 
@@ -65,7 +64,6 @@ const Todolist = ({ id, attributes, handleDeleteList, update }) => {
     }
 
     const handleDeleteTask = (taskId) => {
-        console.log(taskId)
         axios.delete(`/api/v1/tasks/${taskId}`)
         .then(resp => {
             setTasks(tasks.filter(task => task.id === taskId))
@@ -74,19 +72,15 @@ const Todolist = ({ id, attributes, handleDeleteList, update }) => {
     }
 
     const handleMarkTask = (task, taskId) => {
-        //e.preventDefault()
         axios.patch(`/api/v1/tasks/${taskId}`, {task, taskId})
         .then(resp => {setTasks([])
             update()
         })
-        .catch()
     }
 
     const handleUnmarkTask = (task, taskId) => {
-       //e.preventDefault()
         axios.patch(`/api/v1/tasks/${taskId}`, {task, taskId})
         .then(resp => {setTasks([])
-            //todo
             update()
         })
     }
@@ -210,7 +204,6 @@ const Todolist = ({ id, attributes, handleDeleteList, update }) => {
                         {expanded ? 'Hide' : 'Show'} Completed Tasks ({completedTasks.length}) {expanded ? <ArrowDropUpIcon/> : <ArrowDropDownIcon/>}
                     </Button>}
                     <Collapse in={expanded} unmountOnExit>{ completedTasks }</Collapse>
-                    
                 </Box>
             </Box>
         </Box>

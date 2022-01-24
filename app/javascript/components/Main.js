@@ -4,7 +4,6 @@ import Todolist from './Todolist'
 import { Grid, Box, createTheme, ThemeProvider, Paper, Switch, FormControlLabel } from '@mui/material'
 import NavBar from './NavBar'
 import Task from './Task'
-import ViewOptions from './ViewOptions'
 
 
 
@@ -12,7 +11,6 @@ const Main = () => {
     const [todolists, setTodolists] = useState([])
     const [filteredTasks, setFilteredTasks] = useState([])
     const [tasks, setTasks] = useState([])
-    const [labels, setLabels] = useState([])
     const [filter, setFilter] = useState([])
     const [view, setView] = useState('listView')
     const [showCompleted, setShowCompleted] = useState(false)
@@ -76,29 +74,24 @@ const Main = () => {
     const handleDeleteTask = (taskId) => {
         console.log(taskId)
         axios.delete(`/api/v1/tasks/${taskId}`)
-        .then(resp => {
-            setTasks(tasks.filter(task => task.id === taskId))
-            update()
-        })
+             .then(resp => {
+                setTasks(tasks.filter(task => task.id === taskId))
+                update()
+             })
     }
 
     const handleMarkTask = (task, taskId) => {
-        //e.preventDefault()
         axios.patch(`/api/v1/tasks/${taskId}`, {task, taskId})
         .then(resp => {setTasks([])
-            update()})
-            //todo
-            
-        .catch()
+            update()
+        })
     }
 
     const handleUnmarkTask = (task, taskId) => {
-       //e.preventDefault()
         axios.patch(`/api/v1/tasks/${taskId}`, {task, taskId})
-        .then(resp => {setTasks([])
-            //todo
-            update()
-        })
+             .then(resp => {setTasks([])
+                 update()
+             })
     }
 
     const handleEditTask = (task, taskId) => {
@@ -106,7 +99,6 @@ const Main = () => {
              .then(resp => {setTasks([])
                 update()
              })
-             .catch()
     }
 
     const listView = () => {
