@@ -80,9 +80,9 @@ const Todolist = ({ id, attributes, handleDeleteList, update }) => {
 
     const handleUnmarkTask = (task, taskId) => {
         axios.patch(`/api/v1/tasks/${taskId}`, {task, taskId})
-        .then(resp => {setTasks([])
-            update()
-        })
+             .then(resp => {setTasks([])
+                 update()
+             })
     }
 
     const handleEditTask = (task, taskId) => {
@@ -91,7 +91,6 @@ const Todolist = ({ id, attributes, handleDeleteList, update }) => {
              .then(resp => {setTasks([])
                 update()
              })
-             .catch()
     }
 
 
