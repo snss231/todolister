@@ -92,6 +92,7 @@ const Todolist = ({ id, attributes, handleDeleteList, update }) => {
     }
 
     const handleEditTask = (task, taskId) => {
+        console.log(task)
         axios.patch(`/api/v1/tasks/${taskId}`, {task, taskId})
              .then(resp => {setTasks([])
                 update()
@@ -103,7 +104,7 @@ const Todolist = ({ id, attributes, handleDeleteList, update }) => {
 
     const incompleteTasks = tasks.filter(({attributes}) => !attributes.completed)
                                   .map(({id, attributes}) => {
-        const { name, description, due_date, completed } = attributes;
+        const { name, description, due_date, completed, label } = attributes;
         return (<Task
                 key={id}
                 name={name} 
@@ -111,6 +112,7 @@ const Todolist = ({ id, attributes, handleDeleteList, update }) => {
                 id={id}
                 due_date={due_date === null ? null : new Date(due_date)}
                 completed={completed}
+                label={label}
                 handleDelete={handleDeleteTask}
                 handleMark={handleMarkTask}
                 handleUnmark={handleUnmarkTask}
@@ -119,7 +121,7 @@ const Todolist = ({ id, attributes, handleDeleteList, update }) => {
     
     const completedTasks = tasks.filter(({attributes}) => attributes.completed)
                                 .map(({id, attributes}) => {
-        const { name, description, due_date, completed } = attributes;
+        const { name, description, due_date, completed, label } = attributes;
         return (<Task
                 key={id}
                 name={name} 
@@ -127,6 +129,7 @@ const Todolist = ({ id, attributes, handleDeleteList, update }) => {
                 id={id}
                 due_date={due_date === null ? null : new Date(due_date)}
                 completed={completed}
+                label={label}
                 handleDelete={handleDeleteTask}
                 handleMark={handleMarkTask}
                 handleUnmark={handleUnmarkTask}

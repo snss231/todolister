@@ -49,11 +49,11 @@ const formatDate = date => {
     }
 }
 
-const Task = ({ name, description, id ,due_date, completed, handleDelete, handleMark, handleUnmark, 
+const Task = ({ name, description, id ,due_date, completed, label, handleDelete, handleMark, handleUnmark, 
     handleEdit }) => {
 
     const [editMode, setEditMode] = useState(false);
-    const [task, setTask] = useState({ name, description, due_date, completed })
+    const [task, setTask] = useState({ name, description, label: label === null ? '' : label, due_date, completed })
     const [editingTask, setEditingTask] = useState({})
     const [showButtons, setShowButtons] = useState(false)
     const [deleteDialog, setDeleteDialog] = useState(false);
@@ -66,6 +66,7 @@ const Task = ({ name, description, id ,due_date, completed, handleDelete, handle
     const handleSubmit = e => {
         e.preventDefault();
 
+        console.log(editingTask)
         handleEdit(editingTask, id)
         setTask({...editingTask})
         setEditMode(false)
@@ -114,6 +115,10 @@ const Task = ({ name, description, id ,due_date, completed, handleDelete, handle
                         {formatDate(task.due_date)}
                     </Typography>
                 </Box>}   
+                { task.label !== '' && 
+                <Box sx={{display:'flex', alignItems:'center', pt:2}}>
+                    <div>Label:{task.label}</div>
+                </Box>}
             </CardContent>
 
             <Collapse in={showButtons}>
@@ -157,6 +162,13 @@ const Task = ({ name, description, id ,due_date, completed, handleDelete, handle
                         value={editingTask.description} 
                         placeholder="description"
                         multiline={true}/>
+                    <TextField sx={{m:2}}
+                        label="label" 
+                        onChange={handleChange} 
+                        variant="standard"
+                        name="label" 
+                        value={editingTask.label} 
+                        placeholder="label"/>
                     <Box sx={{m:1}}>
                         <DatePicker
                             selected={editingTask.due_date}

@@ -12,6 +12,7 @@ const Main = () => {
     const [todolists, setTodolists] = useState([])
     const [filteredTasks, setFilteredTasks] = useState([])
     const [tasks, setTasks] = useState([])
+    const [labels, setLabels] = useState([])
     const [filter, setFilter] = useState([])
     const [view, setView] = useState('listView')
     const [showCompleted, setShowCompleted] = useState(false)
@@ -116,7 +117,7 @@ const Main = () => {
         const taskList = filteredTasks
             .filter(({attributes}) => !attributes.completed || showCompleted)
             .map(({ attributes, id }) => {  
-            const { name, description, due_date, completed } = attributes;
+            const { name, description, due_date, completed, label } = attributes;
             return (
                 <Grid item xs={12} sm={6} md={4} lg={3} key={id}>
                     <Task
@@ -125,6 +126,7 @@ const Main = () => {
                         id={id}
                         due_date={due_date === null ? null : new Date(due_date)}
                         completed={completed}
+                        label={label}
                         handleDelete={handleDeleteTask}
                         handleMark={handleMarkTask}
                         handleUnmark={handleUnmarkTask}
