@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, { useState } from 'react'
 import Box from '@mui/material/Box'
 import { styled, alpha } from '@mui/material/styles'
 import InputBase from '@mui/material/InputBase'
@@ -14,7 +14,7 @@ const SearchBar = styled('div')(({ theme }) => ({
     },
     marginRight: theme.spacing(2),
     marginLeft: 0,
-    width: '100%',
+    width: '80%',
     [theme.breakpoints.up('sm')]: {
       marginLeft: theme.spacing(3),
       width: 'auto',
@@ -46,12 +46,10 @@ const SearchBar = styled('div')(({ theme }) => ({
   }));
 
 const Search = ({ onSearch }) => {
-    const [focus, setFocus] = useState(false)
 
     const handleFilter = e => {
         onSearch(e.target.value)
     }
-
 
     return (
         <Box sx={{display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center', position:'relative'}}>
@@ -62,8 +60,6 @@ const Search = ({ onSearch }) => {
             <StyledInputBase
               placeholder="Search…"
               inputProps={{ 'aria-label': 'search' }}
-              onFocus={()=>setFocus(true)}
-              onBlur={()=>setFocus(false)}
               onChange={handleFilter}
             />
           </SearchBar>

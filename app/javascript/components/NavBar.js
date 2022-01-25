@@ -8,7 +8,7 @@ import Button from '@mui/material/Button'
 import AddIcon from '@mui/icons-material/Add';
 import Popover from '@mui/material/Popover'
 import TextField from '@mui/material/TextField'
-import { createTheme, ThemeProvider } from '@mui/material';
+import { createTheme, ThemeProvider, useMediaQuery } from '@mui/material';
 
 const theme = createTheme({
     palette: {
@@ -16,14 +16,16 @@ const theme = createTheme({
             main: '#fff'
         }
     }
-})
+});
 
 const NavBar = ({ handleNewList, onSearch }) => {
-    const [anchor, setAnchor] = useState()
-    const [name, setName] = useState('')
+    const [anchor, setAnchor] = useState();
+    const [name, setName] = useState('');
+
+    const notXs = useMediaQuery('(min-width:600px)');
      
-    const open = Boolean(anchor)
-    const id = open ? 'simple-popover' : undefined
+    const open = Boolean(anchor);
+    const id = open ? 'simple-popover' : undefined;
 
     return (
         <Box sx={{ flexGrow: 1}}>
@@ -31,14 +33,14 @@ const NavBar = ({ handleNewList, onSearch }) => {
                 position="sticky">
                 <Toolbar sx={{display:'flex', justifyContent:'space-between'}}>
                     <Typography sx={{cursor:'pointer'}}
-                        variant="h5"
+                        variant={notXs ? 'h5' : 'h6'}
                         component="div"
                         onClick={()=>window.location.reload()}>
                     Todolister
                     </Typography>
                     <Search onSearch={onSearch}/>
                     <ThemeProvider theme={theme}>
-                        <Button color='primary' variant='outlined' startIcon={<AddIcon/>}
+                        <Button color='primary' variant='outlined' startIcon={<AddIcon/>} sx={{whiteSpace:'nowrap'}}
                             onClick={e => {setAnchor(e.currentTarget)}}>
                             New List
                         </Button>

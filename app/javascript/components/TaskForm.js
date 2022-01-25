@@ -1,10 +1,8 @@
 import React, { useState } from 'react'
-import {TextField, Card, ButtonGroup, Stack, IconButton, Typography, Box, Button} from '@mui/material'
-import SaveIcon from '@mui/icons-material/Save';
-import CancelIcon from '@mui/icons-material/Cancel';
+import {TextField, Card, Stack, Typography, Box, Button} from '@mui/material'
 import DatePicker from 'react-datepicker';
 
-const TaskForm = ({handleSubmit, active, setActiveAddTask}) => {
+const TaskForm = ({ handleSubmit, setAnchor }) => {
     const [task, setTask] = useState({name: '', description: '', due_date: null})
     const [addDate, setAddDate] = useState(false)
 
@@ -19,10 +17,10 @@ const TaskForm = ({handleSubmit, active, setActiveAddTask}) => {
         setTask(Object.assign({}, task, {due_date: date}));
     };
 
-    const activeView = () => (
+    return (
         <Card>
             <Typography variant='h6' sx={{ml: 2, mt: 2}}>Add new task:</Typography>
-            <form onSubmit ={e => {handleSubmit(e, task); setActiveAddTask(false); setTask({name: '', description: ''})}}>
+            <form onSubmit ={e => {handleSubmit(e, task);  setTask({name: '', description: ''}); setAnchor(null)}}>
                 <Stack>
                     <TextField sx={{m:2}} inputProps={{required:'required'}}
                         onChange={handleChange} label="name"
@@ -43,14 +41,13 @@ const TaskForm = ({handleSubmit, active, setActiveAddTask}) => {
                             onChange={handleDate} />
                     </Box>}
                 </Stack>
-                <ButtonGroup sx={{m:2}}>
-                    <IconButton color='primary' type="submit"><SaveIcon/></IconButton>
-                    <IconButton color='error' onClick={() => {setActiveAddTask(false); setTask({name: '', description: ''})}}><CancelIcon/></IconButton>
-                </ButtonGroup>
+                <Box sx={{display:'flex', justifyContent:'flex-end'}}>
+                    <Button color='primary' type="submit" variant="contained" sx={{m:1}}>Save</Button>
+                </Box>
             </form>
         </Card>
     )
-    return active && activeView()       
+
 }
 
 export default TaskForm

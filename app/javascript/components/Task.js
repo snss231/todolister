@@ -10,8 +10,8 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
 
 const Task = ({ id, attributes, handleDelete, handleUpdate }) => {
-
     const { name, description, completed, due_date } = attributes;
+    const [showDatePicker, setShowDatePicker] = useState(due_date !== null);
     const [editMode, setEditMode] = useState(false);
     const [task, setTask] = useState({ name, 
                                        description, 
@@ -114,11 +114,15 @@ const Task = ({ id, attributes, handleDelete, handleUpdate }) => {
                         value={editingTask.description} 
                         placeholder="description"
                         multiline={true}/>
-                    <Box sx={{m:1}}>
+                    { !showDatePicker && <Box sx={{ml:1}}>
+                        <Button onClick={()=>setShowDatePicker(true)}>+ Add date</Button>
+                    </Box>}
+                    { showDatePicker &&
+                    <Box sx={{m:1, ml:2}}>
                         <DatePicker
                             selected={editingTask.due_date}
                             onChange={handleDate} />
-                    </Box>
+                    </Box>}
                 </Stack>
                 <ButtonGroup sx={{m:1}}>
                     <IconButton type="submit" color="primary"><SaveIcon/></IconButton>

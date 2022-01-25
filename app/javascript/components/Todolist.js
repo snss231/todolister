@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Task from './Task';
 import TaskForm from './TaskForm' ;
-import { Dialog, DialogTitle, DialogActions, IconButton, Button, TextField, Box, Typography, Collapse, Fade} from '@mui/material';
+import { Dialog, DialogTitle, DialogActions, IconButton, Button, TextField, Box, Typography, Collapse, Fade, Popover} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import EditIcon from '@mui/icons-material/Edit';
@@ -17,7 +17,9 @@ const Todolist = ({ id, attributes, handleDeleteList, onUpdateTask, onDeleteTask
     const [editMode, setEditMode] = useState(false);
     const [listName, setListName] = useState(attributes.name);
     const [editingName, setEditingName] = useState();
-    const [activeAddTask, setActiveAddTask] = useState(false);
+    const [anchor, setAnchor] = useState();
+    const open = Boolean(anchor);
+    const popoverId = open ? 'simple-popover' : undefined;
     const [showButtons, setShowButtons] = useState(false);
     const [deleteDialog, setDeleteDialog] = useState(false);
     const [expanded, setExpanded] = useState(false);
@@ -134,7 +136,7 @@ const Todolist = ({ id, attributes, handleDeleteList, onUpdateTask, onDeleteTask
                                 size='small' color='error'>
                                 <DeleteOutlineIcon/>
                             </IconButton>
-                            <IconButton onClick={() => setActiveAddTask(true)} 
+                            <IconButton onClick={e => setAnchor(e.currentTarget)} 
                                 size='small' color='success'>
                                 <AddIcon/>
                             </IconButton> 
@@ -142,7 +144,23 @@ const Todolist = ({ id, attributes, handleDeleteList, onUpdateTask, onDeleteTask
                     </Box>
                 </Fade>
             </Box>
-            <TaskForm active={activeAddTask} handleSubmit={handleCreateTask} setActiveAddTask={setActiveAddTask}/>
+            <Popover
+                id={popoverId}
+                open={open}
+                anchorEl={anchor}
+                onClose={() => setAnchor(null)}
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'right',
+                }}
+                transformOrigin={{
+                    horizontal:'right',
+                    vertical:'top'
+                }}
+            >
+                <TaskForm handleSubmit={handleCreateTask} setAnchor={setAnchor}/>
+            </Popover>
+            
             <Dialog onClose ={()=>setDeleteDialog(false)} open={deleteDialog}>
                 <DialogTitle>Are you sure you want to delete "{attributes.name}"?</DialogTitle>
                 <DialogActions>
@@ -157,7 +175,8 @@ const Todolist = ({ id, attributes, handleDeleteList, onUpdateTask, onDeleteTask
         <Box className="todolist">
             { editMode ? editView() : defaultView() }
             <hr/>
-            <Box height='30rem' sx={{
+            <Box sx={{
+                maxHeight:'50vh',
                 overflow:'auto',
                 visibility:'hidden',
                 '&:hover': {
