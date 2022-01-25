@@ -1,133 +1,102 @@
-import React, { useState, useEffect } from 'react'
-import axios from 'axios'
-import Task from './Task'
-import TaskForm from './TaskForm' 
-import { Dialog, DialogTitle, DialogActions, IconButton, Button, TextField, Box, Typography, Collapse, Fade} from '@mui/material'
-import AddIcon from '@mui/icons-material/Add'
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
-import EditIcon from '@mui/icons-material/Edit'
-import DoneIcon from '@mui/icons-material/Done'
-import CloseIcon from '@mui/icons-material/Close'
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import Task from './Task';
+import TaskForm from './TaskForm' ;
+import { Dialog, DialogTitle, DialogActions, IconButton, Button, TextField, Box, Typography, Collapse, Fade} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import EditIcon from '@mui/icons-material/Edit';
+import DoneIcon from '@mui/icons-material/Done';
+import CloseIcon from '@mui/icons-material/Close';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
  
-const Todolist = ({ id, attributes, handleDeleteList, update }) => {
-    const [tasks, setTasks] = useState([])
-    const [editMode, setEditMode] = useState(false)
-    const [listName, setListName] = useState(attributes.name)
-    const [editingName, setEditingName] = useState()
-    const [activeAddTask, setActiveAddTask] = useState(false)
-    const [showButtons, setShowButtons] = useState(false)
-    const [deleteDialog, setDeleteDialog] = useState(false)
-    const csrfToken = document.querySelector('[name=csrf-token]').content
-    const [expanded, setExpanded] = useState(false)
-    axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken
+const Todolist = ({ id, attributes, handleDeleteList, onUpdateTask, onDeleteTask, onCreateTask }) => {
+    const [tasks, setTasks] = useState([]);
+    const [editMode, setEditMode] = useState(false);
+    const [listName, setListName] = useState(attributes.name);
+    const [editingName, setEditingName] = useState();
+    const [activeAddTask, setActiveAddTask] = useState(false);
+    const [showButtons, setShowButtons] = useState(false);
+    const [deleteDialog, setDeleteDialog] = useState(false);
+    const [expanded, setExpanded] = useState(false);
+    const csrfToken = document.querySelector('[name=csrf-token]').content;
+    axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken;
 
     useEffect(() => {
         axios.get(`/api/v1/todolists/${id}`)
         .then(resp => {
-            setTasks(resp.data.included)
+            setTasks(resp.data.included);
         })
         .catch(resp => console.log(resp))
-    }, [tasks.length])
+    }, [tasks.length]);
     
-    const handleSubmit = (e, task) => {
-        e.preventDefault()
-        
-        const todolist_id = id
-
-        axios.post('/api/v1/tasks', {task, todolist_id})
-        .then(resp => {
-            const updatedTasks = [ ...tasks, resp.data.data ]
-            setTasks(updatedTasks)
-            update()
-        })
-    }
-
 
     const handleChange = e => {
-        e.preventDefault()
-        setEditingName(e.target.value)
-    }
+        e.preventDefault();
+        setEditingName(e.target.value);
+    };
 
     const handleSubmitRename = e => {
-        e.preventDefault()
-        const name = editingName
+        e.preventDefault();
+        const name = editingName;
         axios.patch(`/api/v1/todolists/${id}`, {todolist: {name: name}})
-             .then(resp => {
-                setEditMode(false);
-                setListName(name)
-                update()
-             })
+        .then(resp => {
+            setEditMode(false);
+            setListName(name);
+        });
+    };
+
+    const handleCreateTask = (e, task) => {
+        e.preventDefault();
         
-    }
+        const todolist_id = id;
+        axios.post('/api/v1/tasks', {task, todolist_id})
+        .then(resp => {
+            const updatedTasks = [ ...tasks, resp.data.data ];
+            setTasks(updatedTasks);
+            onCreateTask(resp.data.data)
+        });
+    };
+
 
     const handleDeleteTask = (taskId) => {
         axios.delete(`/api/v1/tasks/${taskId}`)
         .then(resp => {
-            setTasks(tasks.filter(task => task.id === taskId))
-            update()
+            setTasks(tasks.filter(task => task.id === taskId));
+            onDeleteTask(taskId);
         })
-    }
+    };
 
-    const handleMarkTask = (task, taskId) => {
+    const handleUpdateTask = (task, taskId) => {
         axios.patch(`/api/v1/tasks/${taskId}`, {task, taskId})
-        .then(resp => {setTasks([])
-            update()
-        })
-    }
-
-    const handleUnmarkTask = (task, taskId) => {
-        axios.patch(`/api/v1/tasks/${taskId}`, {task, taskId})
-             .then(resp => {setTasks([])
-                 update()
-             })
-    }
-
-    const handleEditTask = (task, taskId) => {
-        console.log(task)
-        axios.patch(`/api/v1/tasks/${taskId}`, {task, taskId})
-             .then(resp => {setTasks([])
-                update()
-             })
-    }
-
+        .then(resp => {
+            setTasks([...tasks.filter(t => t.id !== taskId), {attributes: task, id: taskId}]);
+            onUpdateTask(task, taskId);
+        });
+    };
 
 
     const incompleteTasks = tasks.filter(({attributes}) => !attributes.completed)
                                   .map(({id, attributes}) => {
-        const { name, description, due_date, completed, label } = attributes;
         return (<Task
                 key={id}
-                name={name} 
-                description={description} 
                 id={id}
-                due_date={due_date === null ? null : new Date(due_date)}
-                completed={completed}
-                label={label}
+                attributes={attributes}
                 handleDelete={handleDeleteTask}
-                handleMark={handleMarkTask}
-                handleUnmark={handleUnmarkTask}
-                handleEdit={handleEditTask}/>)
-    })
+                handleUpdate={handleUpdateTask}/>);
+    });
     
     const completedTasks = tasks.filter(({attributes}) => attributes.completed)
                                 .map(({id, attributes}) => {
-        const { name, description, due_date, completed, label } = attributes;
         return (<Task
                 key={id}
-                name={name} 
-                description={description} 
                 id={id}
-                due_date={due_date === null ? null : new Date(due_date)}
-                completed={completed}
-                label={label}
+                attributes={attributes}
                 handleDelete={handleDeleteTask}
-                handleMark={handleMarkTask}
-                handleUnmark={handleUnmarkTask}
-                handleEdit={handleEditTask}/>)
-    })
+                handleUpdate={handleUpdateTask}/>);
+    });
 
     const editView = () => (
             <form onSubmit={handleSubmitRename}>
@@ -144,7 +113,7 @@ const Todolist = ({ id, attributes, handleDeleteList, update }) => {
                     </Box>
                 </Box>
             </form>
-    )
+    );
     
     const defaultView = () => (
         <>
@@ -174,7 +143,7 @@ const Todolist = ({ id, attributes, handleDeleteList, update }) => {
                     </Box>
                 </Fade>
             </Box>
-            <TaskForm active={activeAddTask} handleSubmit={handleSubmit} setActiveAddTask={setActiveAddTask}/>
+            <TaskForm active={activeAddTask} handleSubmit={handleCreateTask} setActiveAddTask={setActiveAddTask}/>
             <Dialog onClose ={()=>setDeleteDialog(false)} open={deleteDialog}>
                 <DialogTitle>Are you sure you want to delete "{attributes.name}"?</DialogTitle>
                 <DialogActions>
@@ -183,7 +152,7 @@ const Todolist = ({ id, attributes, handleDeleteList, update }) => {
                 </DialogActions>
             </Dialog>
         </>
-    )
+    );
 
     return (
         <Box className="todolist">
@@ -206,7 +175,7 @@ const Todolist = ({ id, attributes, handleDeleteList, update }) => {
                 </Box>
             </Box>
         </Box>
-    )
-}
+    );
+};
 
 export default Todolist

@@ -1,8 +1,6 @@
-import axios from 'axios'
-import React, { useState } from 'react'
-import DatePicker from 'react-datepicker'
-
-import { Card, TextField, Collapse, ButtonGroup, CardActions, Box, CardContent, Stack, Typography, IconButton, Dialog, DialogTitle, DialogActions, Button} from '@mui/material'
+import React, { useState } from 'react';
+import DatePicker from 'react-datepicker';
+import { Card, TextField, Collapse, ButtonGroup, CardActions, Box, CardContent, Stack, Typography, IconButton, Dialog, DialogTitle, DialogActions, Button} from '@mui/material';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import EditIcon from '@mui/icons-material/Edit';
 import DoneIcon from '@mui/icons-material/Done';
@@ -10,89 +8,50 @@ import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
-const formatDate = date => {
-    const today = new Date()
-    const tomorrow = new Date(today.getFullYear(), today.getMonth(), today.getDate()+1)
-    const thisWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate()+7)
 
+const Task = ({ id, attributes, handleDelete, handleUpdate }) => {
 
-    const isToday = () => {
-        return today.getDate() == date.getDate() && 
-        today.getFullYear() == date.getFullYear() && 
-        today.getMonth() == date.getMonth()
-    }
-
-    const isTomorrow = () => {
-        return tomorrow.getDate() == date.getDate() && 
-        tomorrow.getFullYear() == date.getFullYear() && 
-        tomorrow.getMonth() == date.getMonth()
-    }
-
-    const isThisWeek = () => {
-        return date >= today && date <= thisWeek
-    }
-
-    const isThisYear = () => {
-        return date.getYear() === today.getYear()
-    }
-
-    if (isToday()) {
-        return "Today"
-    } else if (isTomorrow()) {
-        return "Tomorrow"
-    } else if (isThisWeek()) {
-        return (new Intl.DateTimeFormat('en-US', { weekday: 'short'}).format(date)).toString()
-    } else if (isThisYear()) {
-        return (new Intl.DateTimeFormat('en-US', { day: 'numeric', month: 'short'}).format(date)).toString()
-    } else {
-        return (new Intl.DateTimeFormat('en-US', { day: 'numeric', month: 'short', year:'numeric'}).format(date)).toString()
-    }
-}
-
-const Task = ({ name, description, id ,due_date, completed, label, handleDelete, handleMark, handleUnmark, 
-    handleEdit }) => {
-
+    const { name, description, completed, due_date } = attributes;
     const [editMode, setEditMode] = useState(false);
-    const [task, setTask] = useState({ name, description, label: label === null ? '' : label, due_date, completed })
-    const [editingTask, setEditingTask] = useState({})
-    const [showButtons, setShowButtons] = useState(false)
+    const [task, setTask] = useState({ name, 
+                                       description, 
+                                       due_date: due_date === null ? null : new Date(due_date), 
+                                       completed });
+    const [editingTask, setEditingTask] = useState({...task});
+    const [showButtons, setShowButtons] = useState(false);
     const [deleteDialog, setDeleteDialog] = useState(false);
-
-    const csrfToken = document.querySelector('[name=csrf-token]').content
-    axios.defaults.headers.common['X-CSRF-TOKEN'] = csrfToken
-
 
     const handleSubmit = e => {
         e.preventDefault();
 
-        console.log(editingTask)
-        handleEdit(editingTask, id)
-        setTask({...editingTask})
-        setEditMode(false)
-    }
+        console.log(editingTask);
+        handleUpdate(editingTask, id);
+        setTask({...editingTask});
+        setEditMode(false);
+    };
 
     const markCompleted = () => {
-        const complete = { completed: true }
-        const completedTask = {...task, ...complete}
-        handleMark(completedTask, id)
-        setTask(completedTask)
-    }
+        const complete = { completed: true };
+        const completedTask = {...task, ...complete};
+        handleUpdate(completedTask, id);
+        setTask(completedTask);
+    };
 
     const unmarkCompleted = () => {
-        const incomplete = { completed: false }
-        const incompleteTask = {...task, ...incomplete}
-        handleUnmark(incompleteTask, id)
-        setTask(incompleteTask)
-    }
+        const incomplete = { completed: false };
+        const incompleteTask = {...task, ...incomplete};
+        handleUpdate(incompleteTask, id);
+        setTask(incompleteTask);
+    };
 
     const handleChange = e => {
-        setEditingTask(Object.assign({}, editingTask, {[e.target.name]: e.target.value}))
-    }
+        setEditingTask(Object.assign({}, editingTask, {[e.target.name]: e.target.value}));
+    };
 
     const handleDate = date => {
-        console.log(date)
-        setEditingTask(Object.assign({}, editingTask, {due_date: date}))
-    }
+        console.log(date);
+        setEditingTask(Object.assign({}, editingTask, {due_date: date}));
+    };
 
 
     const defaultView = () => (
@@ -106,7 +65,6 @@ const Task = ({ name, description, id ,due_date, completed, label, handleDelete,
                 <Typography variant="body2">
                     {task.description}
                 </Typography>
-                
                 { task.due_date !== null && 
                 <Box sx={{display:'flex', alignItems:'center', pt:2}}>
                     <CalendarTodayIcon/>
@@ -114,10 +72,6 @@ const Task = ({ name, description, id ,due_date, completed, label, handleDelete,
                         {formatDate(task.due_date)}
                     </Typography>
                 </Box>}   
-                { task.label !== '' && 
-                <Box sx={{display:'flex', alignItems:'center', pt:2}}>
-                    <div>Label:{task.label}</div>
-                </Box>}
             </CardContent>
 
             <Collapse in={showButtons}>
@@ -144,7 +98,7 @@ const Task = ({ name, description, id ,due_date, completed, label, handleDelete,
 
     const editView = () =>  (   
         <Card>
-            <Box component="form" onSubmit ={handleSubmit} margin='normal'>
+            <Box component="form" onSubmit={handleSubmit} margin='normal'>
                 <Stack>
                     <TextField sx={{m:2, mb:0}}
                         onChange={handleChange}
@@ -161,13 +115,6 @@ const Task = ({ name, description, id ,due_date, completed, label, handleDelete,
                         value={editingTask.description} 
                         placeholder="description"
                         multiline={true}/>
-                    <TextField sx={{m:2}}
-                        label="label" 
-                        onChange={handleChange} 
-                        variant="standard"
-                        name="label" 
-                        value={editingTask.label} 
-                        placeholder="label"/>
                     <Box sx={{m:1}}>
                         <DatePicker
                             selected={editingTask.due_date}
@@ -218,6 +165,44 @@ const Task = ({ name, description, id ,due_date, completed, label, handleDelete,
     )
 }
 
+const formatDate = date => {
+    const today = new Date();
+    const tomorrow = new Date(today.getFullYear(), today.getMonth(), today.getDate()+1);
+    const thisWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate()+7);
+
+
+    const isToday = () => {
+        return today.getDate() == date.getDate() && 
+        today.getFullYear() == date.getFullYear() && 
+        today.getMonth() == date.getMonth();
+    };
+
+    const isTomorrow = () => {
+        return tomorrow.getDate() == date.getDate() && 
+        tomorrow.getFullYear() == date.getFullYear() && 
+        tomorrow.getMonth() == date.getMonth();
+    };
+
+    const isThisWeek = () => {
+        return date >= today && date <= thisWeek;
+    };
+
+    const isThisYear = () => {
+        return date.getYear() === today.getYear()
+    };
+
+    if (isToday()) {
+        return "Today";
+    } else if (isTomorrow()) {
+        return "Tomorrow";
+    } else if (isThisWeek()) {
+        return (new Intl.DateTimeFormat('en-US', { weekday: 'short'}).format(date)).toString();
+    } else if (isThisYear()) {
+        return (new Intl.DateTimeFormat('en-US', { day: 'numeric', month: 'short'}).format(date)).toString();
+    } else {
+        return (new Intl.DateTimeFormat('en-US', { day: 'numeric', month: 'short', year:'numeric'}).format(date)).toString();
+    }
+};
 
 
 export default Task

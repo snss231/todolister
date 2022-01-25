@@ -1,142 +1,128 @@
-import React, { useState, useEffect } from 'react'
-import axios from 'axios'
-import Todolist from './Todolist'
-import { Grid, Box, createTheme, ThemeProvider, Paper, Switch, FormControlLabel } from '@mui/material'
-import NavBar from './NavBar'
-import Task from './Task'
-
-
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import Todolist from './Todolist';
+import { Grid, Box, createTheme, ThemeProvider, Switch, FormControlLabel } from '@mui/material';
+import NavBar from './NavBar';
+import Task from './Task';
 
 const Main = () => {
-    const [todolists, setTodolists] = useState([])
-    const [filteredTasks, setFilteredTasks] = useState([])
-    const [tasks, setTasks] = useState([])
-    const [filter, setFilter] = useState([])
-    const [view, setView] = useState('listView')
-    const [showCompleted, setShowCompleted] = useState(false)
+    const [todolists, setTodolists] = useState([]);
+    const [filteredTasks, setFilteredTasks] = useState([]);
+    const [tasks, setTasks] = useState([]);
+    const [filter, setFilter] = useState([]);
+    const [view, setView] = useState('listView');
+    const [showCompleted, setShowCompleted] = useState(false);
 
     const theme = createTheme({
         palette: {
             mode: 'light',
         },
-    })
+    });
 
-    const update = () => {
-        axios.get('/api/v1/todolists')
-        .then(resp => {
-            setTodolists(resp.data.data)
-            setTasks(resp.data.included)
-            setFilteredTasks(resp.data.included.filter(task => task.attributes.name.includes(filter)))
-        })
-        .catch(resp => console.log(resp))
-    }
+    // const update = () => {
+    //     axios.get('/api/v1/todolists')
+    //     .then(resp => {
+    //         setTodolists(resp.data.data);
+    //         setTasks(resp.data.included);
+    //         setFilteredTasks(resp.data.included.filter(task => task.attributes.name.includes(filter)));
+    //     })
+    //     .catch(resp => console.log(resp));
+    // };
 
     useEffect(() => {
         axios.get('/api/v1/todolists')
         .then(resp => {
-            setTodolists(resp.data.data)
-            setTasks(resp.data.included)
+            setTodolists(resp.data.data);
+            setTasks(resp.data.included);
         })
-        .catch(resp => console.log(resp))
-    }, [todolists.length])
+        .catch(resp => console.log(resp));
+    }, [todolists.length]);
 
     const onSearch = (filter) => {
-        setFilter(filter)
+        setFilter(filter);
         if (filter == '') {
-            setView('listView')
+            setView('listView');
         } else {
-            setFilteredTasks(tasks.filter(task => task.attributes.name.includes(filter)))
-            setView('searchView')
+            setFilteredTasks(tasks.filter(task => task.attributes.name.includes(filter)));
+            setView('searchView');
         }
-    }
+    };
 
     const onAbortSearch = () => {
-        setView('listView')
-    }
+        setView('listView');
+    };
 
     const handleNewList = (e, name) => {
-        e.preventDefault()
-        const todolist = { name: name }
+        e.preventDefault();
+        const todolist = { name: name };
         axios.post('/api/v1/todolists', {todolist})
-             .then(resp => {
-                setTodolists([...todolists, resp.data.data])
-             })
-             .catch(resp => console.log(resp))
-    }
+        .then(resp => {
+            setTodolists([...todolists, resp.data.data]);
+        })
+        .catch(resp => console.log(resp));
+    };
 
     const handleDeleteList = (id) => {
         axios.delete(`/api/v1/todolists/${id}`)
-             .then(resp => {
-                 setTodolists(todolists.filter(list => list.id !== id))
-             })
-    }
+        .then(resp => {
+            setTodolists(todolists.filter(list => list.id !== id));
+        });
+    };
 
     const handleDeleteTask = (taskId) => {
-        console.log(taskId)
         axios.delete(`/api/v1/tasks/${taskId}`)
-             .then(resp => {
-                setTasks(tasks.filter(task => task.id === taskId))
-                update()
-             })
-    }
+        .then(resp => {
+            setTasks(tasks.filter(task => task.id === taskId));
+        });
+    };
 
-    const handleMarkTask = (task, taskId) => {
+    const handleUpdateTask = (task, taskId) => {
         axios.patch(`/api/v1/tasks/${taskId}`, {task, taskId})
-        .then(resp => {setTasks([])
-            update()
+        .then(resp => {
+            setTasks(tasks.map(t => t.id === taskId ? {id: taskId, attributes: task} : t))
+            setFilteredTasks(tasks.filter(t => t.attributes.name.includes(filter)));
         })
-    }
+    };
 
-    const handleUnmarkTask = (task, taskId) => {
-        axios.patch(`/api/v1/tasks/${taskId}`, {task, taskId})
-             .then(resp => {setTasks([])
-                 update()
-             })
-    }
+    const onTodolistUpdateTask = (task, taskId) => {
+        setTasks(tasks.map(t => t.id === taskId ? {id: taskId, attributes: task} : t));
+    };
 
-    const handleEditTask = (task, taskId) => {
-        axios.patch(`/api/v1/tasks/${taskId}`, {task, taskId})
-             .then(resp => {setTasks([])
-                update()
-             })
+    const onTodolistCreateTask = (task) => {
+        setTasks([...tasks, task]);
+    };
+
+    const onTodolistDeleteTask = (taskId) => {
+        setTasks(tasks.filter(task => task.id !== taskId));
     }
 
     const listView = () => {
-        return (<Grid container spacing={2}>{lists()}</Grid>)
-    }
+        return (<Grid container spacing={2}>{lists()}</Grid>);
+    };
 
     const searchView = () => {
         const taskList = filteredTasks
-            .filter(({attributes}) => !attributes.completed || showCompleted)
-            .map(({ attributes, id }) => {  
-            const { name, description, due_date, completed, label } = attributes;
+        .filter(({attributes}) => showCompleted || !attributes.completed)
+        .map(({ attributes, id }) => {  
             return (
                 <Grid item xs={12} sm={6} md={4} lg={3} key={id}>
                     <Task
-                        name={name} 
-                        description={description} 
                         id={id}
-                        due_date={due_date === null ? null : new Date(due_date)}
-                        completed={completed}
-                        label={label}
+                        attributes={attributes}
                         handleDelete={handleDeleteTask}
-                        handleMark={handleMarkTask}
-                        handleUnmark={handleUnmarkTask}
-                        handleEdit={handleEditTask}/>
+                        handleUpdate={handleUpdateTask}/>
                 </Grid>
-           
-            )
-        })
+            );
+        });
         return (
             <Box>
                 <FormControlLabel control={<Switch onChange={()=>setShowCompleted(!showCompleted)}/>} label="show completed tasks"/>
                 {filteredTasks.length !== 0 
                     ? <Grid container spacing={2}>{taskList}</Grid> 
                     : <div>No tasks found with that search term. Try a different keyword?</div>}
-            </Box>
-                
-        )
-    }
+            </Box> 
+        );
+    };
 
     const getView = () => {
         switch(view) {
@@ -145,21 +131,22 @@ const Main = () => {
             case 'searchView':
                 return searchView();
             default:
-                console.log('invalid view')
+                console.log('invalid view');
         }
-    }
+    };
 
     const lists = () => todolists.map(({ id, attributes }) => {
         return (
-       
             <Grid item xs={12} sm={6} md={4} lg={3} key={id}>
                 <Todolist id={id} 
                     attributes={attributes} 
-                    update={update}
+                    onUpdateTask={onTodolistUpdateTask}
+                    onDeleteTask={onTodolistDeleteTask}
+                    onCreateTask={onTodolistCreateTask}
                     handleDeleteList={handleDeleteList}/>
             </Grid>
-        )
-    })
+        );
+    });
     return (
         <ThemeProvider theme={theme}>
             <div className="App" style={{height:"100%"}}>
@@ -171,7 +158,7 @@ const Main = () => {
                 </Box>
             </div>
         </ThemeProvider>
-    )
-}
+    );
+};
 
 export default Main
