@@ -7,9 +7,9 @@ import Task from './Task';
 
 const Main = () => {
     const [todolists, setTodolists] = useState([]);
+    const [filter, setFilter] = useState([])
     const [filteredTasks, setFilteredTasks] = useState([]);
     const [tasks, setTasks] = useState([]);
-    const [filter, setFilter] = useState([]);
     const [view, setView] = useState('listView');
     const [showCompleted, setShowCompleted] = useState(false);
 
@@ -71,9 +71,7 @@ const Main = () => {
         .then(resp => {
             const updatedTasks = [...tasks.filter(t => t.id !== taskId), {attributes: task, id: taskId}]
             setTasks(updatedTasks);
-            setFilteredTasks(
-                updatedTasks.filter(t => t.attributes.name.toLowerCase().includes(task.name.toLowerCase()))
-            );
+            setFilteredTasks(updatedTasks.filter(task => task.attributes.name.toLowerCase().includes(filter.toLowerCase())));
         })
     };
 
@@ -107,12 +105,11 @@ const Main = () => {
                 </Grid>
             );
         });
-        console.log('rerender search')
-        console.log(filteredTasks.map(task => task.attributes))
+
         return (
             <Box>
                 <FormControlLabel control={<Switch onChange={()=>setShowCompleted(!showCompleted)}/>} label="show completed tasks"/>
-                {filteredTasks.length !== 0 
+                {displayedTasks.length !== 0 
                     ? <Grid container spacing={2}>{displayedTasks}</Grid> 
                     : <div>No tasks found with that search term. Try a different keyword?</div>}
             </Box> 

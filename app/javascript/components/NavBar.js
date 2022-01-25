@@ -55,7 +55,7 @@ const NavBar = ({ handleNewList, onSearch }) => {
                             horizontal: 'left',
                         }}
                     >
-                        <form onSubmit={e => handleNewList(e, name)}>
+                        <form onSubmit={e => {handleNewList(e, name); setName(''); setAnchor(null)}}>
                             <Typography sx={{p:1}}>Enter the name of the new todolist:</Typography>
                             <TextField sx={{p:1}} variant='standard'
                                 inputProps={{required:'required'}}
