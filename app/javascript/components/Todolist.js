@@ -10,6 +10,7 @@ import DoneIcon from '@mui/icons-material/Done';
 import CloseIcon from '@mui/icons-material/Close';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import { maxHeight } from '@mui/system';
 
  
 const Todolist = ({ id, attributes, handleDeleteList, onUpdateTask, onDeleteTask, onCreateTask }) => {
@@ -156,6 +157,9 @@ const Todolist = ({ id, attributes, handleDeleteList, onUpdateTask, onDeleteTask
                 transformOrigin={{
                     horizontal:'right',
                     vertical:'top'
+                }}
+                PaperProps={{
+                    style: { width:'300px', overflow:'visible'}
                 }}
             >
                 <TaskForm handleSubmit={handleCreateTask} setAnchor={setAnchor}/>
