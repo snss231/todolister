@@ -19,16 +19,6 @@ const Main = () => {
         },
     });
 
-    // const update = () => {
-    //     axios.get('/api/v1/todolists')
-    //     .then(resp => {
-    //         setTodolists(resp.data.data);
-    //         setTasks(resp.data.included);
-    //         setFilteredTasks(resp.data.included.filter(task => task.attributes.name.includes(filter)));
-    //     })
-    //     .catch(resp => console.log(resp));
-    // };
-
     useEffect(() => {
         axios.get('/api/v1/todolists')
         .then(resp => {
@@ -36,14 +26,14 @@ const Main = () => {
             setTasks(resp.data.included);
         })
         .catch(resp => console.log(resp));
-    }, [todolists.length]);
+    }, []);
 
     const onSearch = (filter) => {
         setFilter(filter);
         if (filter == '') {
             setView('listView');
         } else {
-            setFilteredTasks(tasks.filter(task => task.attributes.name.includes(filter)));
+            setFilteredTasks(tasks.filter(task => task.attributes.name.toLowerCase().includes(filter.toLowerCase())));
             setView('searchView');
         }
     };
@@ -54,12 +44,12 @@ const Main = () => {
 
     const handleNewList = (e, name) => {
         e.preventDefault();
-        const todolist = { name: name };
-        axios.post('/api/v1/todolists', {todolist})
+        const todolist = { name };
+        axios.post('/api/v1/todolists', { todolist })
         .then(resp => {
+            console.log(resp.data.data)
             setTodolists([...todolists, resp.data.data]);
         })
-        .catch(resp => console.log(resp));
     };
 
     const handleDeleteList = (id) => {
@@ -72,15 +62,18 @@ const Main = () => {
     const handleDeleteTask = (taskId) => {
         axios.delete(`/api/v1/tasks/${taskId}`)
         .then(resp => {
-            setTasks(tasks.filter(task => task.id === taskId));
+            setTasks(tasks.filter(task => task.id !== taskId));
         });
     };
 
     const handleUpdateTask = (task, taskId) => {
         axios.patch(`/api/v1/tasks/${taskId}`, {task, taskId})
         .then(resp => {
-            setTasks(tasks.map(t => t.id === taskId ? {id: taskId, attributes: task} : t))
-            setFilteredTasks(tasks.filter(t => t.attributes.name.includes(filter)));
+            const updatedTasks = [...tasks.filter(t => t.id !== taskId), {attributes: task, id: taskId}]
+            setTasks(updatedTasks);
+            setFilteredTasks(
+                updatedTasks.filter(t => t.attributes.name.toLowerCase().includes(task.name.toLowerCase()))
+            );
         })
     };
 
@@ -101,7 +94,7 @@ const Main = () => {
     };
 
     const searchView = () => {
-        const taskList = filteredTasks
+        const displayedTasks = filteredTasks
         .filter(({attributes}) => showCompleted || !attributes.completed)
         .map(({ attributes, id }) => {  
             return (
@@ -114,11 +107,13 @@ const Main = () => {
                 </Grid>
             );
         });
+        console.log('rerender search')
+        console.log(filteredTasks.map(task => task.attributes))
         return (
             <Box>
                 <FormControlLabel control={<Switch onChange={()=>setShowCompleted(!showCompleted)}/>} label="show completed tasks"/>
                 {filteredTasks.length !== 0 
-                    ? <Grid container spacing={2}>{taskList}</Grid> 
+                    ? <Grid container spacing={2}>{displayedTasks}</Grid> 
                     : <div>No tasks found with that search term. Try a different keyword?</div>}
             </Box> 
         );

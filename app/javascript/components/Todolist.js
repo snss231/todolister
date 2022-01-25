@@ -30,7 +30,7 @@ const Todolist = ({ id, attributes, handleDeleteList, onUpdateTask, onDeleteTask
             setTasks(resp.data.included);
         })
         .catch(resp => console.log(resp))
-    }, [tasks.length]);
+    }, []);
     
 
     const handleChange = e => {
@@ -40,11 +40,11 @@ const Todolist = ({ id, attributes, handleDeleteList, onUpdateTask, onDeleteTask
 
     const handleSubmitRename = e => {
         e.preventDefault();
-        const name = editingName;
-        axios.patch(`/api/v1/todolists/${id}`, {todolist: {name: name}})
+        const todolist = { name: editingName }
+        axios.patch(`/api/v1/todolists/${id}`, { todolist })
         .then(resp => {
             setEditMode(false);
-            setListName(name);
+            setListName(editingName);
         });
     };
 
@@ -60,11 +60,10 @@ const Todolist = ({ id, attributes, handleDeleteList, onUpdateTask, onDeleteTask
         });
     };
 
-
     const handleDeleteTask = (taskId) => {
         axios.delete(`/api/v1/tasks/${taskId}`)
         .then(resp => {
-            setTasks(tasks.filter(task => task.id === taskId));
+            setTasks(tasks.filter(task => task.id !== taskId));
             onDeleteTask(taskId);
         })
     };
@@ -105,7 +104,7 @@ const Todolist = ({ id, attributes, handleDeleteList, onUpdateTask, onDeleteTask
                     justifyContent:'space-between',
                     }}>
                     <TextField sx={{mt:1}}
-                        onChange={handleChange} label="name" variant="standard"
+                        onChange={handleChange} label="name" variant="standard" inputProps={{required:'required'}}
                         name="name" value={editingName} ></TextField>
                     <Box sx={{display:'flex', alignItems:'bottom'}}>
                         <IconButton color="success" type="submit"><DoneIcon/></IconButton>

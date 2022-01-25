@@ -30,9 +30,10 @@ const NavBar = ({ handleNewList, onSearch }) => {
             <AppBar
                 position="sticky">
                 <Toolbar sx={{display:'flex', justifyContent:'space-between'}}>
-                    <Typography
+                    <Typography sx={{cursor:'pointer'}}
                         variant="h5"
-                        component="div">
+                        component="div"
+                        onClick={()=>window.location.reload()}>
                     Todolister
                     </Typography>
                     <Search onSearch={onSearch}/>
@@ -55,6 +56,7 @@ const NavBar = ({ handleNewList, onSearch }) => {
                         <form onSubmit={e => handleNewList(e, name)}>
                             <Typography sx={{p:1}}>Enter the name of the new todolist:</Typography>
                             <TextField sx={{p:1}} variant='standard'
+                                inputProps={{required:'required'}}
                                 onChange={e => setName(e.target.value)} 
                                 name="name" value={name} 
                                 placeholder="Sunday shopping list"/>

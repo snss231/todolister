@@ -23,8 +23,6 @@ const Task = ({ id, attributes, handleDelete, handleUpdate }) => {
 
     const handleSubmit = e => {
         e.preventDefault();
-
-        console.log(editingTask);
         handleUpdate(editingTask, id);
         setTask({...editingTask});
         setEditMode(false);
@@ -33,8 +31,9 @@ const Task = ({ id, attributes, handleDelete, handleUpdate }) => {
     const markCompleted = () => {
         const complete = { completed: true };
         const completedTask = {...task, ...complete};
-        handleUpdate(completedTask, id);
         setTask(completedTask);
+        handleUpdate(completedTask, id);
+
     };
 
     const unmarkCompleted = () => {
@@ -49,7 +48,6 @@ const Task = ({ id, attributes, handleDelete, handleUpdate }) => {
     };
 
     const handleDate = date => {
-        console.log(date);
         setEditingTask(Object.assign({}, editingTask, {due_date: date}));
     };
 
@@ -101,6 +99,7 @@ const Task = ({ id, attributes, handleDelete, handleUpdate }) => {
             <Box component="form" onSubmit={handleSubmit} margin='normal'>
                 <Stack>
                     <TextField sx={{m:2, mb:0}}
+                        inputProps={{required:'required'}}
                         onChange={handleChange}
                         variant="standard"
                         label="name"
