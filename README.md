@@ -6,5 +6,4 @@ Get organised with this full-stack task management app! This was a little toy pr
 
 Create todolists, add tasks to them. Refer back anytime and mark the tasks as completed when you're done. It's as intuitive as it gets!
 
-## Technical details for developers
 This app was made with React, with a Ruby on Rails backend. Material UI components are used in the frontend.
