@@ -1,7 +1,5 @@
 # Todolister 
 
-## CVWO 2021/22 Assignment Submission
+Get organised with this full-stack task management app! You can see the demo here at https://todolist-er.herokuapp.com/
 
-| Name    | Matriculation Number |
-| ------- | -------------------- |
-| Sean Ng | A0217634E            |
+This app was made with React, with a Ruby on Rails backend.
